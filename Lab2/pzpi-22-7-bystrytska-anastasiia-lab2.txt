@@ -1,1 +1,679 @@
+Міністерство освіти і науки України 
+Харківський національний університет радіоелектроніки
+
+
+
+
+
+Кафедра «Програмної інженерії»
+
+
+
+Дисципліна «Архітектура програмного
+забезпечення» 
+Лабораторна робота №2
+«РОЗРОБКА ПРОГРАМНОЇ АРХІТЕКТУРИ, СТВОРЕННЯ ТА ВІДЛАГОДЖЕННЯ ПРОГРАМНОГО КОДУ СЕРВЕРНОЇ ЧАСТИНИ ПРОГРАМНОЇ СИСТЕМИ»
+
+
+
+
+
+
+
+
+Виконала:
+ст. гр. ПЗПІ-22-7
+Бистрицька А.І	Прийняв:
+ ст. викл.
+Сокорчук І.П
+
+Харків – 2025
+2 РОЗРОБКА ПРОГРАМНОЇ АРХІТЕКТУРИ, СТВОРЕННЯ ТА ВІДЛАГОДЖЕННЯ ПРОГРАМНОГО КОДУ СЕРВЕРНОЇ ЧАСТИНИ ПРОГРАМНОЇ СИСТЕМИ
+2.1 Історія змін
+Таблиця 2.1 – Історія змін
+№	Дата	Версія	Опис змін
+1	10.06.2025	0.1	Створено «Історія Змін»
+2	10.06.2025	0.1	Створено «Завдання»
+3	10.06.2025	0.1	Створено «Опис виконаної роботи»
+4	10.06.2025	0.1	Створено «Висновки»
+5	10.06.2025	0.1	Створено «ДОДАТОК А»
+6	10.06.2025	0.1	Створено «ДОДАТОК Б»
+7	10.06.2025	0.1	Створено «ДОДАТОК В»
+8	10.06.2025	0.1	Створено «ДОДАТОК Г»
+
+2.2 Завдання
+Метою даного завдання є створення серверної частини програмної системи, яка забезпечує ефективне управління лікарськими засобами, контроль умов їх зберігання, облік та обробку замовлень, а також реалізацію доступу користувачів із різними ролями (адміністратор, фармацевт).
+2.3 Опис виконаної роботи 
+2.3.1Загальна характеристика розробленої системи
+Розроблена інформаційна система представляє собою комплексне програмно-технічне рішення, призначене для автоматизації процесів управління медикаментами в аптечних закладах. Система забезпечує інтегрований підхід до вирішення завдань обліку фармацевтичних препаратів, контролю параметрів мікроклімату приміщень зберігання, управління процесами постачання та реалізації продукції.
+Функціональний спектр системи охоплює наступні ключові напрямки: забезпечення інформаційної безпеки через механізми реєстрації та автентифікації користувачів різних рівнів доступу (адміністративний персонал, фармацевтичні працівники); автоматизацію процесів управління товарними запасами медикаментів; оптимізацію процедур формування та обробки замовлень постачальникам; безперервний моніторинг та автоматичне оновлення показників температурно-вологісного режиму в приміщеннях зберігання; автоматизацію документообігу через генерацію накладних у стандартизованому PDF-форматі; систематизацію та архівування даних сенсорного моніторингу; повноцінну інтеграцію з протоколом MQTT для забезпечення обробки даних у режимі реального часу.
+2.3.2 Архітектурні принципи побудови програмної системи
+Архітектурна концепція системи базується на принципах клієнт-серверної взаємодії з чітким розподілом функціональних обов'язків між компонентами. Серверна платформа реалізована на основі середовища виконання Node.js з використанням веб-фреймворку Express, що забезпечує високу продуктивність обробки HTTP-запитів. Для організації збереження даних використовується документо-орієнтована система управління базами даних MongoDB, яка забезпечує гнучкість схеми даних та масштабованість рішення.
+Архітектурна модель системи характеризується модульністю та дотриманням принципів розділення відповідальностей між функціональними компонентами. Структурна організація включає наступні рівні абстракції: рівень моделей даних, який забезпечує формалізацію структури інформаційних об'єктів системи; рівень контролерів, що реалізує основну бізнес-логіку обробки запитів; рівень маршрутизації, відповідальний за обробку вхідних HTTP-запитів та направлення їх до відповідних обробників; рівень сервісів, який надає допоміжну функціональність, включаючи генерацію документів; підсистему MQTT-клієнта для асинхронної обробки даних телеметрії; інтегроване середовище тестування на базі платформи Postman.
+2.3.3 Функціональна специфікація основних модулів системи
+-Функціональна архітектура системи структурована у вигляді спеціалізованих модулів, кожен з яких відповідає за реалізацію певного аспекту бізнес-логіки:
+-Модуль authController забезпечує реалізацію повного циклу управління автентифікацією користувачів, включаючи процедури реєстрації нових облікових записів, автентифікації при вході до системи, безпечного завершення сесій, а також функціональність відновлення паролів через захищені канали зв'язку.
+-Модуль user.controller надає адміністративний інтерфейс для управління користувачами системи, забезпечуючи можливості перегляду реєстру користувачів та видалення облікових записів з обмеженням доступу виключно для користувачів з адміністративними привілеями.
+-Модуль medicine.controller реалізує повний спектр операцій CRUD (Create, Read, Update, Delete) для управління інформацією про медикаменти, включаючи функціональність симуляції процесів продажу та генерацію статистичних звітів щодо обігу фармацевтичної продукції.
+-Модуль order.controller забезпечує автоматизацію процесів управління замовленнями, включаючи створення заявок постачальникам, автоматичну генерацію супровідних накладних та обробку інформації про статус доставки товарів.
+-Модуль roomController відповідає за управління інфраструктурою приміщень зберігання, забезпечуючи моніторинг та оновлення інформації про поточні кліматичні умови в режимі реального часу.
+-Модуль sensorDataController реалізує функціональність збору, обробки та архівування телеметричних даних з датчиків моніторингу, забезпечуючи можливість ретроспективного аналізу умов зберігання для конкретних приміщень.
+-Підсистема mqtt забезпечує асинхронну обробку вхідних повідомлень протоколу MQTT, що містять актуальні показники температури та відносної вологості повітря.
+-Сервіс invoiceService реалізує алгоритми автоматичної генерації накладних з перетворенням HTML-шаблонів у стандартизований PDF-формат для подальшого документообігу.
+2.3.4 Математичне моделювання процесів моніторингу умов зберігання
+Для забезпечення адекватної симуляції динаміки кліматичних параметрів у приміщеннях зберігання застосовуються математичні моделі, базовані на тригонометричних функціях періодичного характеру. Моделювання температурних та вологісних характеристик здійснюється за допомогою гармонічних функцій типу синусоїди та косинусоїди, які відображають природні добові коливання кліматичних параметрів з урахуванням специфіки типу приміщення (стандартні умови зберігання або холодильні камери).
+Аналітична обробка накопичених історичних даних реалізується з використанням інструментарію MongoDB Aggregation Framework, що дозволяє здійснювати складні обчислювальні операції безпосередньо на рівні бази даних. Алгоритми агрегації забезпечують обчислення статистичних показників, включаючи середні арифметичні значення температури та вологості за визначені періоди, визначення екстремальних значень (мінімальних та максимальних показників), а також підрахунок загальної кількості вимірювань у розрізі календарних днів.
+Така аналітична функціональність створює основу для формування комплексних звітів відповідності умов зберігання встановленим нормативним вимогам та стандартам фармацевтичної галузі.
+2.3.5 Структурна організація системи управління базами даних
+Логічна структура бази даних організована у вигляді спеціалізованих колекцій, кожна з яких призначена для зберігання певного типу інформаційних об'єктів:
+Колекція users містить персональну інформацію про користувачів системи, включаючи електронні адреси, захешовані паролі та інформацію про рольові привілеї доступу.
+Колекція medicines зберігає структуровані дані про фармацевтичні препарати, включаючи найменування, терміни придатності, інформацію про постачальників та специфічні вимоги до умов зберігання.
+Колекція orders містить інформацію про замовлення постачальникам, поточний статус обробки, історію етапів доставки та асоційовані накладні документи.
+Колекція sales призначена для збереження даних про реалізовані медикаменти з метою подальшого статистичного аналізу та звітності.
+Колекція rooms містить характеристики приміщень зберігання та актуальну інформацію про поточні кліматичні умови.
+Колекція sensorData забезпечує збереження історичних показників температури та вологості з автоматичним очищенням даних старших за семиденний період для оптимізації продуктивності системи.
+2.3.6 Технологічний стек та архітектурні рішення
+Технологічна основа системи включає наступні компоненти: серверна платформа базується на середовищі виконання Node.js з використанням веб-фреймворку Express.js для забезпечення високопродуктивної обробки HTTP-запитів; система управління базами даних MongoDB забезпечує гнучкість схеми даних та горизонтальну масштабованість; механізм автентифікації реалізований через комбінацію сесійного управління та опціонального використання JSON Web Tokens для додаткового захисту адміністративних функцій; інтеграція з IoT-пристроями здійснюється через протокол MQTT для забезпечення взаємодії з фізичними або симульованими сенсорами; генерація документів у PDF-форматі реалізована за допомогою бібліотеки html-pdf.
+Додатково використовуються спеціалізовані бібліотеки третіх сторін: moment.js для роботи з часовими мітками, mongoose для об'єктно-реляційного відображення MongoDB, cors для управління крос-доменними запитами, connect-mongo для збереження сесій, jsonwebtoken для роботи з JWT-токенами.
+Тестування функціональності здійснюється через платформу Postman з використанням структурованих колекцій запитів для валідації всіх аспектів системи.
+2.3.7 Методологія та результати тестування системи
+Комплексне тестування функціональних компонентів системи здійснювалося з використанням платформи Postman, що забезпечило систематичну верифікацию всіх аспектів функціональності. Процес тестування включав наступні критичні аспекти:
+Верифікацію доступності та коректності відповідей усіх REST API-ендпоінтів системи з валідацією структури та семантики повернутих даних; тестування операцій створення, читання, оновлення та видалення для всіх типів сутностей системи, включаючи медикаменти, замовлення та конфігурації приміщень; валідацію процесу автоматичної генерації PDF-документів накладних з перевіркою коректності формування структури та вмісту; симуляцію та тестування поведінки системи при отриманні змін сенсорних даних через MQTT-протокол; верифікацію функціонування механізмів захисту, включаючи middleware isAuthenticated для обмеження доступу до захищеного маршруту /profile; тестування динамічного оновлення кліматичних даних через асинхронні MQTT-повідомлення з валідацією коректності обробки та збереження інформації.
+Результати тестування підтверджують стабільність роботи всіх ключових компонентів системи та відповідність реалізованої функціональності встановленим технічним вимогам.
+2.4 Висновки 
+У результаті виконаної роботи було розроблено повнофункціональну серверну частину інформаційної системи для автоматизованого управління аптечним обліком, умовами зберігання медикаментів та документообігом. Система успішно поєднує класичні CRUD-операції з сучасними технологіями обробки даних у реальному часі (MQTT) та генерацією супровідної документації (накладні у PDF-форматі).
+ 
+ДОДАТОК А
+Хронологічний опис та посилання:
+Відео доповіді на Youtube:https://youtu.be/0mVMd20dUfc
+Хронологічний опис доповіді:
+00:00 Вступна частина 
+00:20 Загальний огляд маршрутів 
+00:30 Тестування функцій авторизації та регістрації 
+01:31 Тестування функцій для ліків 
+05:53 Тестування функцій для кімнат 
+08:01 Тестування функцій для датчиків температури та вологи 
+09:16 Тестування функцій для замовлення ліків 
+13:13 Тестування функцій для адміністрування
+ 
+ДОДАТОК Б 
+Графічні матеріали
+			 
+Рисунок Б.1 – ER – діаграма
+ 
+Рисунок Б.2 – Структура бази даних 
+ 
+Рисунок Б.3 - UML-діаграма прецедентів
+ 
+Рисунок Б.4 -  UML діаграма розгортання
+ 
+ДОДАТОК В
+Програмний код
+1 Математична обробка прикладних даних
+https://github.com/NureBystrytskaAnastasiia/apz-pzpi-22-7-bystrytska-anastasiia/blob/main/Lab2/pzpi-22-7-bystrytska-anastasiia-lab2/controllers/roomController.js
+// Функція для конвертації значень сенсорів
+const convertSensorValues = (temp, hum, isColdRoom = false) => {
+  if (isColdRoom) {
+    const realisticTemp = Number((-25 + Math.random() * 20).toFixed(1));
+    const realisticHum = Number((60 + Math.random() * 30).toFixed(1));
+    return { temperature: realisticTemp, humidity: realisticHum };
+  }
+  const realisticTemp = Number((temp + (Math.random() * 2 - 1)).toFixed(1));
+  const realisticHum = Number((hum + (Math.random() * 5 - 2.5)).toFixed(1));
+  return { temperature: realisticTemp, humidity: realisticHum };
+};
+
+// Створення нової кімнати
+const createRoom = async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    const isColdRoom = description && description.toLowerCase().includes('холодне приміщення');
+    
+    let initialTemp, initialHum;
+    
+    if (isColdRoom) {
+      initialTemp = -15 + Math.random() * 20;
+      initialHum = 70 + Math.random() * 20;
+    } else {
+      initialTemp = 20 + Math.random() * 10;
+      initialHum = 40 + Math.random() * 30;
+    }
+    
+    const { temperature, humidity } = convertSensorValues(initialTemp, initialHum, isColdRoom);
+
+    const newRoom = new Room({ 
+      name, 
+      description,
+      temperature,
+      humidity,
+      isColdRoom
+    });
+
+    await newRoom.save();
+
+    try {
+      await mqttClient.publish(
+        `sensors/${newRoom._id}`,
+        `${temperature.toFixed(1)},${humidity.toFixed(1)}`
+      );
+      console.log(`MQTT: Дані відправлено для кімнати ${newRoom._id}`);
+    } catch (mqttError) {
+      console.error('Помилка MQTT:', mqttError);
+    }
+
+    res.status(201).json({
+      ...newRoom.toObject(),
+      message: "Кімнату успішно створено з даними сенсорів"
+    });
+
+  } catch (error) {
+    console.error('Помилка при створенні кімнати:', error);
+    res.status(500).json({ 
+      message: "Помилка сервера",
+      error: error.message 
+    });
+  }
+};
+// Симуляція змін середовища
+const simulateEnvironmentChanges = async () => {
+  try {
+    const rooms = await Room.find({});
+    const now = new Date();
+    
+    for (const room of rooms) {
+      const isColdRoom = room.description && room.description.toLowerCase().includes('холодне приміщення');
+      let newTemp, newHum;
+
+      if (isColdRoom) {
+        const hour = now.getHours();
+        const baseTemp = -20 + Math.sin(hour / 24 * Math.PI * 2) * 10;
+        const baseHum = 75 + Math.cos(hour / 12 * Math.PI) * 15;
+        newTemp = Number((baseTemp + (Math.random() * 2 - 1)).toFixed(1));
+        newHum = Number((baseHum + (Math.random() * 5 - 2.5)).toFixed(1));
+      } else {
+        const hour = now.getHours();
+        const baseTemp = 20 + Math.sin(hour / 24 * Math.PI * 2) * 5;
+        const baseHum = 50 + Math.cos(hour / 12 * Math.PI) * 20;
+        newTemp = Number((baseTemp + (Math.random() * 2 - 1)).toFixed(1));
+        newHum = Number((baseHum + (Math.random() * 5 - 2.5)).toFixed(1));
+      }
+      
+      await updateRoomData(room._id, newTemp, newHum);
+      
+      await new SensorData({
+        roomId: room._id,
+        temperature: newTemp,
+        humidity: newHum
+      }).save();
+      
+      mqttClient.publish(
+        `sensors/${room._id}`,
+        `${newTemp},${newHum}`
+      );
+      
+      console.log(`Оновлено умови для кімнати ${room.name}: ${newTemp}°C, ${newHum}%`);
+    }
+  } catch (error) {
+    console.error('Помилка симуляції змін:', error);
+  }
+};
+2 Резервне копіювання користувацьких даних
+https://github.com/NureBystrytskaAnastasiia/apz-pzpi-22-7-bystrytska-anastasiia/blob/main/Lab2/pzpi-22-7-bystrytska-anastasiia-lab2/manual-backup.js
+const mongoose = require('mongoose');
+const fs = require('fs');
+const path = require('path');
+
+// Підключення до MongoDB
+mongoose.connect('mongodb+srv://anastasiabystrytska14:4SsZ2Swzje50FJLs@cluster0.1jbra09.mongodb.net/', {
+  dbName: 'test', 
+});
+
+mongoose.connection.once('open', async () => {
+  console.log('Підключення до MongoDB встановлено');
+
+  const BACKUP_DIR = path.join(__dirname, 'manual-backup');
+  if (!fs.existsSync(BACKUP_DIR)) {
+    fs.mkdirSync(BACKUP_DIR);
+  }
+
+  const collections = await mongoose.connection.db.listCollections().toArray();
+
+  for (const collection of collections) {
+    const data = await mongoose.connection.db.collection(collection.name).find().toArray();
+    fs.writeFileSync(
+      path.join(BACKUP_DIR, `${collection.name}.json`),
+      JSON.stringify(data, null, 2)
+    );
+    console.log(`Збережено колекцію ${collection.name}`);
+  }
+
+  mongoose.connection.close();
+});
+
+3 Адміністрування бізнес-логіки системи
+https://github.com/NureBystrytskaAnastasiia/apz-pzpi-22-7-bystrytska-anastasiia/blob/main/Lab2/pzpi-22-7-bystrytska-anastasiia-lab2/controllers/user.controller.js
+https://github.com/NureBystrytskaAnastasiia/apz-pzpi-22-7-bystrytska-anastasiia/blob/main/Lab2/pzpi-22-7-bystrytska-anastasiia-lab2/routes/user.routes.js
+const User = require('../models/User');
+const mongoose = require('mongoose');
+
+exports.getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find().select('-password');
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to retrieve users', details: error.message });
+    }
+};
+
+exports.deleteUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ error: 'Invalid user ID' });
+        }
+
+        const user = await User.findByIdAndDelete(id);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.json({ message: 'User deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to delete user', details: error.message });
+    }
+};
+const express = require('express');
+const router = express.Router();
+const userController = require('../controllers/user.controller');
+
+router.get('/users', userController.getAllUsers);
+router.delete('/users/:id', userController.deleteUser);
+
+module.exports = router;
+
+ 
+ДОДАТОК Г 
+Специфікація REST
+Управління аутентифікацією
+Реєстрація користувача
+Endpoint: POST /auth/register
+Опис: Створення нового користувача в системі.
+Тіло запиту:
+{
+  "email": "string",
+  "password": "string",
+  "name": "string",
+  "role": "admin | pharmacist"
+}
+Відповіді:
+201 Created - Користувач успішно зареєстрований
+400 Bad Request - Email вже використовується
+500 Internal Server Error - Помилка сервера
+Вхід користувача
+Endpoint: POST /auth/login
+Опис: Аутентифікація користувача та отримання JWT токену.
+Тіло запиту:
+{
+  "email": "string",
+  "password": "string"
+}
+Відповідь при успіху (200):
+{
+  "token": "string",
+  "user": {
+    "email": "string",
+    "name": "string",
+    "role": "string"
+  }
+}
+Відновлення паролю
+Endpoint: POST /auth/forgot-password
+Опис: Відправка нового паролю на електронну пошту користувача.
+Тіло запиту:
+{
+  "email": "string"
+}
+Вихід користувача
+Endpoint: POST /auth/logout
+Опис: Завершення сесії користувача.
+Управління медикаментами
+Створення медикаменту
+Endpoint: POST /medicines
+Опис: Додавання нового медикаменту до системи.
+Тіло запиту:
+{
+  "name": "string",
+  "quantity": "number",
+  "expirationDate": "date",
+  "supplier": "string",
+  "price": "number",
+  "storageRoomId": "ObjectId",
+  "temperatureRange": {
+    "min": "number",
+    "max": "number"
+  },
+  "humidityRange": {
+    "min": "number",
+    "max": "number"
+  },
+  "storageInstructions": "string"
+}
+Відповідь при успіху (201):
+{
+  "_id": "ObjectId",
+  "name": "string",
+  "quantity": "number",
+  "expirationDate": "date",
+  "supplier": "string",
+  "price": "number",
+  "storageRoomId": "ObjectId",
+  "temperatureRange": {
+    "min": "number",
+    "max": "number"
+  },
+  "humidityRange": {
+    "min": "number",
+    "max": "number"
+  },
+  "storageInstructions": "string",
+  "isExpiringSoon": "boolean",
+  "createdAt": "date",
+  "updatedAt": "date"
+}
+Отримання всіх медикаментів
+Endpoint: GET /medicines
+Опис: Отримання списку всіх медикаментів з додатковою інформацією про умови зберігання.
+Відповідь при успіху (200):
+ [
+  {
+    "_id": "ObjectId",
+    "name": "string",
+    "quantity": "number",
+    "expirationDate": "date",
+    "supplier": "string",
+    "price": "number",
+    "storageRoomId": {
+      "_id": "ObjectId",
+      "name": "string",
+      "temperature": "number",
+      "humidity": "number"
+    },
+    "temperatureRange": {
+      "min": "number",
+      "max": "number"
+    },
+    "humidityRange": {
+      "min": "number",
+      "max": "number"
+    },
+    "storageInstructions": "string",
+    "isExpiringSoon": "boolean",
+    "storageConditions": {
+      "isTempValid": "boolean",
+      "isHumidityValid": "boolean"
+    },
+    "storageStatus": "string"
+  }
+]
+Отримання медикаменту за ID
+Endpoint: GET /medicines/:id
+Опис: Отримання детальної інформації про конкретний медикамент.
+Оновлення медикаменту
+Endpoint: PUT /medicines/:id
+Опис: Повне оновлення інформації про медикамент.
+Видалення медикаменту
+Endpoint: DELETE /medicines/:id
+Опис: Видалення медикаменту з системи.
+Часткове оновлення кількості
+Endpoint: PATCH /medicines/:id
+Опис: Оновлення кількості медикаменту.
+Тіло запиту:
+{
+  "quantity": "number"
+}
+Симуляція продажу
+Endpoint: POST /medicines/simulate-sale
+Опис: Симуляція випадкового продажу медикаменту.
+Отримання статистики
+Endpoint: GET /medicines/stats
+Опис: Отримання статистичних даних про медикаменти та продажі.
+Відповідь при успіху (200):
+{
+  "totalMedicines": "number",
+  "lowStock": "number",
+  "criticalStock": "number",
+  "expiringSoon": "number",
+  "todaySales": "number",
+  "todayRevenue": "number",
+  "salesData": [
+    {
+      "date": "string",
+      "sales": "number",
+      "revenue": "number"
+    }
+  ]
+}
+Управління замовленнями
+Створення замовлення
+Endpoint: POST /orders
+Опис: Створення нового замовлення на поставку медикаментів.
+Тіло запиту:
+{
+  "items": [
+    {
+      "medicineId": "ObjectId",
+      "quantity": "number"
+    }
+  ]
+}
+Відповідь при успіху (201):
+{
+  "_id": "ObjectId",
+  "items": [
+    {
+      "medicineId": "ObjectId",
+      "medicineName": "string",
+      "supplier": "string",
+      "quantity": "number",
+      "unitPrice": "number",
+      "totalPrice": "number"
+    }
+  ],
+  "status": "created",
+  "totalAmount": "number",
+  "createdAt": "date"
+}
+Отримання всіх замовлень
+Endpoint: GET /orders
+Опис: Отримання списку всіх замовлень, відсортованих за датою створення.
+Отримання замовлення за ID
+Endpoint: GET /orders/:id
+Опис: Отримання детальної інформації про конкретне замовлення.
+Завершення замовлення
+Endpoint: POST /orders/:id/complete
+Опис: Завершення замовлення та оновлення кількості медикаментів на складі.
+Генерація накладної
+Endpoint: POST /orders/:id/invoice
+Опис: Генерація PDF накладної для замовлення.
+Відповідь при успіху (200):
+{
+  "pdf": "base64_string",
+  "invoiceNumber": "string"
+}
+Управління кімнатами зберігання
+Створення кімнати
+Endpoint: POST /rooms
+Опис: Створення нової кімнати зберігання з автоматичною ініціалізацією сенсорних даних.
+Тіло запиту:
+{
+  "name": "string",
+  "description": "string"
+}
+Відповідь при успіху (201):
+{
+  "_id": "ObjectId",
+  "name": "string",
+  "description": "string",
+  "temperature": "number",
+  "humidity": "number",
+  "isColdRoom": "boolean",
+  "updatedAt": "date",
+  "message": "string"
+}
+Отримання всіх кімнат
+Endpoint: GET /rooms
+Опис: Отримання списку всіх кімнат зберігання.
+Відповідь при успіху (200):
+{
+  "count": "number",
+  "rooms": [
+    {
+      "_id": "ObjectId",
+      "name": "string",
+      "description": "string",
+      "temperature": "number",
+      "humidity": "number",
+      "isColdRoom": "boolean",
+      "updatedAt": "date"
+    }
+  ]
+}
+Отримання кімнати за ID
+Endpoint: GET /rooms/:id
+Опис: Отримання детальної інформації про конкретну кімнату.
+Оновлення кімнати
+Endpoint: PUT /rooms/:id
+Опис: Оновлення інформації про кімнату зберігання.
+Видалення кімнати
+Endpoint: DELETE /rooms/:id
+Опис: Видалення кімнати та всіх пов'язаних сенсорних даних.
+
+Управління сенсорними даними
+Створення сенсорних даних
+Endpoint: POST /sensor-data
+Опис: Додавання нових показників температури та вологості для кімнати.
+Тіло запиту:
+{
+  "roomId": "ObjectId",
+  "temperature": "number",
+  "humidity": "number"
+}
+Отримання сенсорних даних за кімнатою
+Endpoint: GET /sensor-data/:roomId
+Опис: Отримання останніх 100 записів сенсорних даних для конкретної кімнати.
+Отримання архівних даних
+Endpoint: GET /sensor-data/archive/all
+Опис: Отримання агрегованих сенсорних даних за останні 7 днів для всіх кімнат.
+Відповідь при успіху (200):
+json
+[
+  {
+    "_id": "ObjectId",
+    "roomName": "string",
+    "days": [
+      {
+        "date": {
+          "day": "number",
+          "month": "number",
+          "year": "number"
+        },
+        "avgTemp": "number",
+        "avgHumidity": "number",
+        "minTemp": "number",
+        "maxTemp": "number",
+        "count": "number"
+      }
+    ]
+  }
+]
+Управління користувачами
+Отримання всіх користувачів
+Endpoint: GET /users
+Опис: Отримання списку всіх користувачів системи (без паролів).
+Відповідь при успіху (200):
+ [
+  {
+    "_id": "ObjectId",
+    "email": "string",
+    "name": "string",
+    "role": "admin | pharmacist"
+  }
+]
+Видалення користувача
+Endpoint: DELETE /users/:id
+Опис: Видалення користувача з системи.
+
+Коди відповідей HTTP
+Успішні відповіді
+•	200 OK - Запит виконано успішно
+•	201 Created - Ресурс створено успішно
+Помилки клієнта
+•	400 Bad Request - Некоректні дані запиту
+•	401 Unauthorized - Відсутня або недійсна аутентифікація
+•	403 Forbidden - Недостатньо прав доступу
+•	404 Not Found - Ресурс не знайдено
+Помилки сервера
+•	500 Internal Server Error - Внутрішня помилка сервера
+Схеми даних
+Модель Medicine
+{
+  name: String (required),
+  quantity: Number (required),
+  expirationDate: Date (required),
+  supplier: String (required),
+  price: Number (required),
+  storageRoomId: ObjectId (required, ref: 'Room'),
+  temperatureRange: {
+    min: Number (required),
+    max: Number (required)
+  },
+  humidityRange: {
+    min: Number (required),
+    max: Number (required)
+  },
+  storageInstructions: String,
+  timestamps: true
+}
+Модель Order
+{
+  items: [OrderItem],
+  status: String (enum: ['created', 'delivered', 'completed']),
+  createdAt: Date,
+  deliveredAt: Date,
+  completedAt: Date,
+  invoiceNumber: String,
+  invoiceData: Object,
+  totalAmount: Number,
+  timestamps: true
+}
+Модель Room
+{
+  name: String (required),
+  description: String,
+  temperature: Number,
+  humidity: Number,
+  updatedAt: Date
+}
+Модель User
+{
+  email: String (required, unique),
+  password: String (required),
+  name: String (required),
+  role: String (enum: ['admin', 'pharmacist'])
+}
+ Модель Sale
+{
+  medicine: ObjectId (required, ref: 'Medicine'),
+  quantity: Number (required, min: 1),
+  price: Number (required),
+  date: Date
+}
+ SensorData
+{
+  roomId: ObjectId (required, ref: 'Room'),
+  temperature: Number (required),
+  humidity: Number (required),
+  timestamp: Date (expires: '7d')
+}
+
 
