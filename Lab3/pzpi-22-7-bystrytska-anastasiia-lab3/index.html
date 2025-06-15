@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Авторизація</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #B19CD9;
+      --primary-light: #D8C4F0;
+      --primary-dark: #8B73B8;
+      --secondary: #6B46C1;
+      --accent: #A855F7;
+      --light: #FAF7FF;
+      --medium-light: #F3EFFF;
+      --dark: #4C1D95;
+      --text-primary: #2D1B69;
+      --text-secondary: #6B46C1;
+      --success: #8B5CF6;
+      --danger: #C084FC;
+      --warning: #DDD6FE;
+      --info: #A78BFA;
+      --border: #E9D5FF;
+      --shadow: rgba(139, 92, 246, 0.15);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #FAF7FF 0%, #F3EFFF 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--text-primary);
+      line-height: 1.6;
+      padding: 20px;
+    }
+
+    .auth-container {
+      background: linear-gradient(135deg, white 0%, var(--light) 100%);
+      padding: 2.5rem;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px var(--shadow);
+      border: 1px solid var(--border);
+      width: 100%;
+      max-width: 450px;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    .auth-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: var(--secondary);
+      font-weight: 600;
+      font-size: 1.8rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .form-tabs {
+      display: flex;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid var(--border);
+      border-radius: 8px 8px 0 0;
+      overflow: hidden;
+    }
+
+    .tab-button {
+      flex: 1;
+      padding: 1rem;
+      background: var(--medium-light);
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      color: var(--text-secondary);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-weight: 500;
+      border-bottom: 3px solid transparent;
+    }
+
+    .tab-button:hover {
+      background: var(--primary-light);
+      transform: translateY(-2px);
+    }
+
+    .tab-button.active {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      color: white;
+      border-bottom-color: var(--primary-dark);
+      box-shadow: 0 4px 15px var(--shadow);
+    }
+
+    .form-container {
+      display: none;
+      animation: fadeInUp 0.5s ease-out;
+    }
+
+    .form-container.active {
+      display: block;
+    }
+
+    .input-container {
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.8rem;
+      color: var(--text-primary);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 15px 20px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 1rem;
+      background-color: var(--light);
+      color: var(--text-primary);
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+      background-color: white;
+      transform: translateY(-1px);
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 15px var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 1rem;
+    }
+
+    button[type="submit"]:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px var(--shadow);
+    }
+
+    button[type="submit"]:active {
+      transform: translateY(0);
+    }
+
+    .error-message, .success-message {
+      margin-top: 1.5rem;
+      padding: 15px 20px;
+      border-radius: 12px;
+      text-align: center;
+      font-weight: 500;
+      box-shadow: 0 4px 15px var(--shadow);
+      animation: fadeInUp 0.3s ease-out;
+    }
+
+    .error-message {
+      background: linear-gradient(135deg, #FCE7F3 0%, #F3E8FF 100%);
+      color: #7C2D12;
+      border: 1px solid #FDA4AF;
+    }
+
+    .success-message {
+      background: linear-gradient(135deg, #E9D5FF 0%, #DDD6FE 100%);
+      color: var(--secondary);
+      border: 1px solid var(--primary);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Анімації */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.7;
+      }
+    }
+
+    /* Адаптивність */
+    @media (max-width: 480px) {
+      .auth-container {
+        padding: 1.5rem;
+        margin: 10px;
+      }
+      
+      h1 {
+        font-size: 1.5rem;
+      }
+      
+      .tab-button {
+        padding: 0.8rem;
+        font-size: 0.9rem;
+      }
+    }
+
+    /* Додаткові ефекти */
+    .input-container::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+      transition: width 0.3s ease;
+    }
+
+    .input-container:focus-within::before {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <h1><i class="fas fa-user-shield"></i> Система авторизації</h1>
+    
+    <div class="form-tabs">
+      <button class="tab-button active" onclick="showForm('login')">
+        <i class="fas fa-sign-in-alt"></i> Вхід
+      </button>
+      <button class="tab-button" onclick="showForm('register')">
+        <i class="fas fa-user-plus"></i> Реєстрація
+      </button>
+    </div>
+
+    <!-- Форма логіну -->
+    <div id="login-form-container" class="form-container active">
+      <form id="login-form">
+        <div class="input-container">
+          <label for="login-email"><i class="fas fa-envelope"></i> Email:</label>
+          <input type="email" id="login-email" name="email" required placeholder="Введіть ваш email">
+        </div>
+        <div class="input-container">
+          <label for="login-password"><i class="fas fa-lock"></i> Пароль:</label>
+          <input type="password" id="login-password" name="password" required placeholder="Введіть ваш пароль">
+        </div>
+        <button type="submit">
+          <i class="fas fa-sign-in-alt"></i> Увійти
+        </button>
+      </form>
+    </div>
+
+    <!-- Форма реєстрації -->
+    <div id="register-form-container" class="form-container">
+      <form id="register-form">
+        <div class="input-container">
+          <label for="register-name"><i class="fas fa-user"></i> Ім'я:</label>
+          <input type="text" id="register-name" name="name" required placeholder="Введіть ваше ім'я">
+        </div>
+        <div class="input-container">
+          <label for="register-email"><i class="fas fa-envelope"></i> Email:</label>
+          <input type="email" id="register-email" name="email" required placeholder="Введіть ваш email">
+        </div>
+        <div class="input-container">
+          <label for="register-password"><i class="fas fa-lock"></i> Пароль:</label>
+          <input type="password" id="register-password" name="password" required placeholder="Створіть пароль">
+        </div>
+        <div class="input-container">
+          <label for="register-role"><i class="fas fa-user-tag"></i> Роль:</label>
+          <select id="register-role" name="role">
+            <option value="pharmacist">Фармацевт</option>
+            <option value="admin">Адміністратор</option>
+          </select>
+        </div>
+        <button type="submit">
+          <i class="fas fa-user-plus"></i> Зареєструватися
+        </button>
+      </form>
+    </div>
+
+    <div id="message" class="hidden"></div>
+  </div>
+
+  <script>
+    // Функція для перемикання між формами
+    function showForm(formType) {
+      const loginContainer = document.getElementById('login-form-container');
+      const registerContainer = document.getElementById('register-form-container');
+      const tabs = document.querySelectorAll('.tab-button');
+      
+      // Очищуємо повідомлення
+      clearMessage();
+      
+      if (formType === 'login') {
+        loginContainer.classList.add('active');
+        registerContainer.classList.remove('active');
+        tabs[0].classList.add('active');
+        tabs[1].classList.remove('active');
+      } else {
+        registerContainer.classList.add('active');
+        loginContainer.classList.remove('active');
+        tabs[1].classList.add('active');
+        tabs[0].classList.remove('active');
+      }
+    }
+
+    // Функція для відображення повідомлень
+    function showMessage(message, type = 'error') {
+      const messageDiv = document.getElementById('message');
+      messageDiv.textContent = message;
+      messageDiv.className = type === 'error' ? 'error-message' : 'success-message';
+      messageDiv.classList.remove('hidden');
+    }
+
+    // Функція для очищення повідомлень
+    function clearMessage() {
+      const messageDiv = document.getElementById('message');
+      messageDiv.classList.add('hidden');
+    }
+
+    // Обробник форми логіну
+    document.getElementById("login-form").addEventListener("submit", function (event) {
+      event.preventDefault();
+      clearMessage();
+
+      const email = document.getElementById("login-email").value;
+      const password = document.getElementById("login-password").value;
+
+      // Запит на бекенд для логіну
+      fetch("http://localhost:5000/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password
+        })
+      })
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            throw new Error("Невірний email або пароль");
+          }
+        })
+        .then((data) => {
+          console.log("Логін успішний", data);
+          
+          // ВАЖЛИВО: Зберігаємо токен в localStorage
+          if (data.token) {
+            localStorage.setItem('token', data.token);
+          }
+          
+          // Направляємо на іншу сторінку залежно від ролі
+          if (data.user && data.user.role === "admin") {
+            window.location.href = "admin.html";
+          } else if (data.user && data.user.role === "pharmacist") {
+            window.location.href = "pharmacist.html";
+          } else {
+            throw new Error("Невідома роль користувача");
+          }
+        })
+        .catch((error) => {
+          console.error("Помилка:", error);
+          showMessage(error.message, 'error');
+        });
+    });
+
+    // Обробник форми реєстрації
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearMessage();
+
+      const name = document.getElementById('register-name').value;
+      const email = document.getElementById('register-email').value;
+      const password = document.getElementById('register-password').value;
+      const role = document.getElementById('register-role').value;
+
+      try {
+        const res = await fetch('http://localhost:5000/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password, role }),
+        });
+
+        if (res.ok) {
+          showMessage('Реєстрація успішна! Тепер увійдіть в систему.', 'success');
+          // Очищаємо форму
+          document.getElementById('register-form').reset();
+          // Переключаємось на форму логіну через 2 секунди
+          setTimeout(() => {
+            showForm('login');
+          }, 2000);
+        } else {
+          const errorData = await res.json();
+          throw new Error(errorData.message || 'Помилка реєстрації');
+        }
+      } catch (error) {
+        console.error('Помилка реєстрації:', error);
+        showMessage(error.message, 'error');
+      }
+    });
+  </script>
+</body>
+</html>
