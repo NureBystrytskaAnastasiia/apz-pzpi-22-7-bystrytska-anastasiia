@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Авторизація</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .auth-container {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #333;
+    }
+
+    .form-tabs {
+      display: flex;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .tab-button {
+      flex: 1;
+      padding: 0.75rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      color: #666;
+      transition: all 0.3s ease;
+    }
+
+    .tab-button.active {
+      color: #667eea;
+      border-bottom: 2px solid #667eea;
+    }
+
+    .form-container {
+      display: none;
+    }
+
+    .form-container.active {
+      display: block;
+    }
+
+    .input-container {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #333;
+      font-weight: 500;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 0.75rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: opacity 0.3s ease;
+    }
+
+    button[type="submit"]:hover {
+      opacity: 0.9;
+    }
+
+    .error-message, .success-message {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      border-radius: 5px;
+      text-align: center;
+    }
+
+    .error-message {
+      background-color: #ffebee;
+      color: #c62828;
+      border: 1px solid #ffcdd2;
+    }
+
+    .success-message {
+      background-color: #e8f5e8;
+      color: #2e7d32;
+      border: 1px solid #c8e6c9;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <h1>Система авторизації</h1>
+    
+    <div class="form-tabs">
+      <button class="tab-button active" onclick="showForm('login')">Вхід</button>
+      <button class="tab-button" onclick="showForm('register')">Реєстрація</button>
+    </div>
+
+    <!-- Форма логіну -->
+    <div id="login-form-container" class="form-container active">
+      <form id="login-form">
+        <div class="input-container">
+          <label for="login-email">Email:</label>
+          <input type="email" id="login-email" name="email" required>
+        </div>
+        <div class="input-container">
+          <label for="login-password">Пароль:</label>
+          <input type="password" id="login-password" name="password" required>
+        </div>
+        <button type="submit">Увійти</button>
+      </form>
+    </div>
+
+    <!-- Форма реєстрації -->
+    <div id="register-form-container" class="form-container">
+      <form id="register-form">
+        <div class="input-container">
+          <label for="register-name">Ім'я:</label>
+          <input type="text" id="register-name" name="name" required>
+        </div>
+        <div class="input-container">
+          <label for="register-email">Email:</label>
+          <input type="email" id="register-email" name="email" required>
+        </div>
+        <div class="input-container">
+          <label for="register-password">Пароль:</label>
+          <input type="password" id="register-password" name="password" required>
+        </div>
+        <div class="input-container">
+          <label for="register-role">Роль:</label>
+          <select id="register-role" name="role">
+            <option value="pharmacist">Фармацевт</option>
+            <option value="admin">Адміністратор</option>
+          </select>
+        </div>
+        <button type="submit">Зареєструватися</button>
+      </form>
+    </div>
+
+    <div id="message" class="hidden"></div>
+  </div>
+
+  <script>
+    // Функція для перемикання між формами
+    function showForm(formType) {
+      const loginContainer = document.getElementById('login-form-container');
+      const registerContainer = document.getElementById('register-form-container');
+      const tabs = document.querySelectorAll('.tab-button');
+      
+      // Очищуємо повідомлення
+      clearMessage();
+      
+      if (formType === 'login') {
+        loginContainer.classList.add('active');
+        registerContainer.classList.remove('active');
+        tabs[0].classList.add('active');
+        tabs[1].classList.remove('active');
+      } else {
+        registerContainer.classList.add('active');
+        loginContainer.classList.remove('active');
+        tabs[1].classList.add('active');
+        tabs[0].classList.remove('active');
+      }
+    }
+
+    // Функція для відображення повідомлень
+    function showMessage(message, type = 'error') {
+      const messageDiv = document.getElementById('message');
+      messageDiv.textContent = message;
+      messageDiv.className = type === 'error' ? 'error-message' : 'success-message';
+      messageDiv.classList.remove('hidden');
+    }
+
+    // Функція для очищення повідомлень
+    function clearMessage() {
+      const messageDiv = document.getElementById('message');
+      messageDiv.classList.add('hidden');
+    }
+
+    // Обробник форми логіну
+    document.getElementById("login-form").addEventListener("submit", function (event) {
+      event.preventDefault();
+      clearMessage();
+
+      const email = document.getElementById("login-email").value;
+      const password = document.getElementById("login-password").value;
+
+      // Запит на бекенд для логіну
+      fetch("http://localhost:5000/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password
+        })
+      })
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            throw new Error("Невірний email або пароль");
+          }
+        })
+        .then((data) => {
+          console.log("Логін успішний", data);
+          
+          // ВАЖЛИВО: Зберігаємо токен в localStorage
+          if (data.token) {
+            localStorage.setItem('token', data.token);
+          }
+          
+          // Направляємо на іншу сторінку залежно від ролі
+          if (data.user && data.user.role === "admin") {
+            window.location.href = "admin.html";
+          } else if (data.user && data.user.role === "pharmacist") {
+            window.location.href = "pharmacist.html";
+          } else {
+            throw new Error("Невідома роль користувача");
+          }
+        })
+        .catch((error) => {
+          console.error("Помилка:", error);
+          showMessage(error.message, 'error');
+        });
+    });
+
+    // Обробник форми реєстрації
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearMessage();
+
+      const name = document.getElementById('register-name').value;
+      const email = document.getElementById('register-email').value;
+      const password = document.getElementById('register-password').value;
+      const role = document.getElementById('register-role').value;
+
+      try {
+        const res = await fetch('http://localhost:5000/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password, role }),
+        });
+
+        if (res.ok) {
+          showMessage('Реєстрація успішна! Тепер увійдіть в систему.', 'success');
+          // Очищаємо форму
+          document.getElementById('register-form').reset();
+          // Переключаємось на форму логіну через 2 секунди
+          setTimeout(() => {
+            showForm('login');
+          }, 2000);
+        } else {
+          const errorData = await res.json();
+          throw new Error(errorData.message || 'Помилка реєстрації');
+        }
+      } catch (error) {
+        console.error('Помилка реєстрації:', error);
+        showMessage(error.message, 'error');
+      }
+    });
+  </script>
+</body>
+</html>
