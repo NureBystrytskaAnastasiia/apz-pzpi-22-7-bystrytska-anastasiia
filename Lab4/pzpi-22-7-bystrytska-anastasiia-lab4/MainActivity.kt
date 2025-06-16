@@ -1,0 +1,149 @@
+package com.example.mobile
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.*
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.example.mobile.data.storage.TokenStorage
+import com.example.mobile.ui.login.AuthScreen
+import com.example.mobile.ui.login.LoginViewModel
+import com.example.mobile.ui.login.LoginViewModelFactory
+import com.example.mobile.ui.medicine.AdminScreen
+import com.example.mobile.ui.medicine.MedicineViewModel
+import com.example.mobile.ui.medicine.PharmacistScreen
+import com.example.mobile.ui.order.OrderDetailScreen
+import com.example.mobile.ui.order.OrderListScreen
+import com.example.mobile.ui.order.OrderViewModel
+import com.example.mobile.ui.room.RoomListScreen
+import com.example.mobile.ui.user.UserListScreen
+import com.example.mobile.ui.theme.MobileTheme
+import kotlinx.coroutines.launch
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            MobileTheme {
+                val tokenStorage = TokenStorage(this)
+
+                val loginViewModel: LoginViewModel = viewModel(
+                    factory = LoginViewModelFactory(tokenStorage)
+                )
+                val medicineViewModel: MedicineViewModel = viewModel()
+                val orderViewModel: OrderViewModel = viewModel()
+
+                val navController = rememberNavController()
+                var isLoggedIn by remember { mutableStateOf(false) }
+                var userRole by remember { mutableStateOf<String?>(null) }
+
+                LaunchedEffect(Unit) {
+                    launch {
+                        tokenStorage.tokenFlow.collect { token ->
+                            isLoggedIn = !token.isNullOrBlank()
+                            if (!isLoggedIn) userRole = null
+                        }
+                    }
+                    launch {
+                        tokenStorage.roleFlow.collect { role ->
+                            userRole = role
+                        }
+                    }
+                }
+
+                NavHost(
+                    navController = navController,
+                    startDestination = if (isLoggedIn) "main" else "auth"
+                ) {
+                    composable("auth") {
+                        AuthScreen(
+                            viewModel = loginViewModel,
+                            onLoginSuccess = { role ->
+                                userRole = role
+                                navController.navigate("main") {
+                                    popUpTo("auth") { inclusive = true }
+                                }
+                            }
+                        )
+                    }
+
+                    composable("main") {
+                        when (userRole) {
+                            "admin" -> AdminScreen(
+                                onLogout = {
+                                    loginViewModel.logout()
+                                    navController.navigate("auth") {
+                                        popUpTo("main") { inclusive = true }
+                                    }
+                                },
+                                viewModel = medicineViewModel,
+                                onOrdersClick = { navController.navigate("orders") },
+                                onRoomsClick = { navController.navigate("rooms") },
+                                onUsersClick = { navController.navigate("users") }
+                            )
+                            "pharmacist" -> PharmacistScreen(
+                                onLogout = {
+                                    loginViewModel.logout()
+                                    navController.navigate("auth") {
+                                        popUpTo("main") { inclusive = true }
+                                    }
+                                },
+                                viewModel = medicineViewModel,
+                                onOrdersClick = { navController.navigate("orders") },
+                                onRoomsClick = { navController.navigate("rooms") }
+                            )
+                            else -> {
+                                LaunchedEffect(Unit) {
+                                    loginViewModel.logout()
+                                    navController.navigate("auth") {
+                                        popUpTo("main") { inclusive = true }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    composable("orders") {
+                        OrderListScreen(
+                            onBack = { navController.popBackStack() },
+                            onOrderClick = { orderId -> navController.navigate("order/$orderId") },
+                            viewModel = orderViewModel
+                        )
+                    }
+
+                    composable("rooms") {
+                        RoomListScreen(
+                            onBack = { navController.popBackStack() },
+                            viewModel = viewModel()
+                        )
+                    }
+
+                    composable("users") {
+                        UserListScreen(
+                            onBack = { navController.popBackStack() },
+                            viewModel = viewModel()
+                        )
+                    }
+
+                    composable(
+                        "order/{orderId}",
+                        arguments = listOf(navArgument("orderId") { type = NavType.StringType })
+                    ) { backStackEntry ->
+                        OrderDetailScreen(
+                            orderId = backStackEntry.arguments?.getString("orderId") ?: "",
+                            onBack = { navController.popBackStack() },
+                            viewModel = orderViewModel
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
