@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Система замовлень ліків</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #7E57C2;
+            --primary-light: #B39DDB;
+            --primary-dark: #5E35B1;
+            --secondary: #4527A0;
+            --accent: #9575CD;
+            --light: #F5F3FF;
+            --medium-light: #EDE7F6;
+            --dark: #311B92;
+            --text-primary: #1A237E;
+            --text-secondary: #5C6BC0;
+            --success: #66BB6A;
+            --danger: #EF5350;
+            --warning: #FFCA28;
+            --info: #42A5F5;
+            --border: #D1C4E9;
+            --shadow: rgba(126, 87, 194, 0.1);
+            --card-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(126, 87, 194, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--info) 100%);
+        }
+        
+        header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        header h1 i {
+            margin-right: 12px;
+            font-size: 1.8rem;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border);
+            position: relative;
+            transition: var(--transition);
+        }
+        
+        .section:hover {
+            box-shadow: 0 5px 15px rgba(126, 87, 194, 0.2);
+        }
+        
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+            border-radius: 12px 12px 0 0;
+        }
+        
+        h2 {
+            color: var(--primary-dark);
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.4rem;
+        }
+        
+        h2 i {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background-color: white;
+            transition: var(--transition);
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(126, 87, 194, 0.2);
+        }
+        
+        button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: var(--transition);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(126, 87, 194, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button.danger {
+            background: linear-gradient(135deg, var(--danger) 0%, #D32F2F 100%);
+        }
+        
+        button.success {
+            background: linear-gradient(135deg, var(--success) 0%, #388E3C 100%);
+        }
+        
+        button.warning {
+            background: linear-gradient(135deg, var(--warning) 0%, #FFA000 100%);
+            color: #333;
+        }
+        
+        button.info {
+            background: linear-gradient(135deg, var(--info) 0%, #1976D2 100%);
+        }
+        
+        .order-item {
+            background: var(--medium-light);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        .order-item:hover {
+            background: white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        
+        .remove-item-btn {
+            margin-top: 10px;
+            padding: 10px 15px;
+            font-size: 0.9rem;
+        }
+        
+        #addItemBtn {
+            margin-bottom: 25px;
+        }
+        
+        #orderTotalAmount {
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 12px 15px;
+            background-color: var(--medium-light);
+        }
+        
+        .orders-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .order-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+        
+        .order-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .order-card h3 {
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .order-details {
+            margin-top: 15px;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+        
+        .detail-label {
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-created {
+            background-color: rgba(66, 165, 245, 0.1);
+            color: var(--info);
+            border: 1px solid var(--info);
+        }
+        
+        .status-delivered {
+            background-color: rgba(255, 202, 40, 0.1);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+        
+        .status-completed {
+            background-color: rgba(102, 187, 106, 0.1);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+        
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: none;
+            font-weight: 500;
+            box-shadow: var(--card-shadow);
+            border-left: 4px solid transparent;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .alert.success {
+            background-color: rgba(102, 187, 106, 0.1);
+            color: var(--success);
+            border-left-color: var(--success);
+            display: block;
+        }
+        
+        .alert.error {
+            background-color: rgba(239, 83, 80, 0.1);
+            color: var(--danger);
+            border-left-color: var(--danger);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+        }
+        
+        .loading i {
+            font-size: 28px;
+            color: var(--primary);
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        #salesSimulation {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+        }
+        
+        #salesLog {
+            background: var(--medium-light);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        
+        #salesLog p {
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed var(--border);
+        }
+        
+        #salesLog p:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+        }
+        
+        hr {
+            border: none;
+            border-top: 1px dashed var(--border);
+            margin: 15px 0;
+        }
+        
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+            
+            h2 {
+                font-size: 1.2rem;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        /* Анімації */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .slide-up {
+            animation: slideUp 0.4s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-pills"></i> Система замовлень ліків</h1>
+        </header>
+
+        <div id="alert" class="alert"></div>
+
+        <section class="section slide-up">
+            <h2><i class="fas fa-shopping-cart"></i> Нове замовлення</h2>
+            <form id="createOrderForm">
+                <div id="orderItemsContainer">
+                    <div class="order-item fade-in">
+                        <div class="form-group">
+                            <label>Лікарський засіб</label>
+                            <select class="medicine-select" required>
+                                <option value="">Оберіть препарат</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Кількість</label>
+                            <input type="number" class="quantity-input" required min="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Ціна за одиницю (грн)</label>
+                            <input type="number" class="price-input" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Постачальник</label>
+                            <input type="text" class="supplier-input" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Загальна сума (грн)</label>
+                            <input type="number" class="total-price" readonly>
+                        </div>
+                        <button type="button" class="danger remove-item-btn"><i class="fas fa-trash"></i> Видалити</button>
+                    </div>
+                </div>
+                <button type="button" id="addItemBtn" class="warning"><i class="fas fa-plus"></i> Додати препарат</button>
+                <div class="form-group">
+                    <label>Загальна сума замовлення (грн)</label>
+                    <input type="number" id="orderTotalAmount" readonly>
+                </div>
+                <button type="submit" class="success"><i class="fas fa-check"></i> Підтвердити замовлення</button>
+            </form>
+        </section>
+
+        <section class="section slide-up">
+            <h2><i class="fas fa-list"></i> Активні замовлення</h2>
+            <div class="loading" id="loadingOrders">
+                <i class="fas fa-spinner"></i> Завантаження...
+            </div>
+            <div class="orders-list" id="ordersList"></div>
+        </section>
+
+        <section class="section slide-up">
+            <h2><i class="fas fa-chart-line"></i> Статистика продажів</h2>
+            <div id="salesSimulation">
+                <p>Симуляція продажів активована. Ліки будуть "продаватися" автоматично.</p>
+                <div id="salesLog"></div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        const alertBox = document.getElementById('alert');
+        
+        // Функції для роботи з UI
+        function showAlert(message, type = 'success') {
+            alertBox.textContent = message;
+            alertBox.className = `alert ${type} fade-in`;
+            alertBox.style.display = 'block';
+            setTimeout(() => {
+                alertBox.style.opacity = '0';
+                setTimeout(() => {
+                    alertBox.style.display = 'none';
+                    alertBox.style.opacity = '1';
+                }, 300);
+            }, 5000);
+        }
+        
+        function toggleLoading(show, elementId = 'loadingOrders') {
+            document.getElementById(elementId).style.display = show ? 'block' : 'none';
+        }
+        
+        // Завантаження списку ліків
+        async function loadMedicines() {
+            try {
+                const response = await fetch(`${API_URL}/medicines`);
+                if (!response.ok) throw new Error('Не вдалося завантажити ліки');
+                return await response.json();
+            } catch (error) {
+                console.error('Помилка завантаження ліків:', error);
+                showAlert(`Помилка: ${error.message}`, 'error');
+                return [];
+            }
+        }
+        
+        // Завантаження активних замовлень
+        async function loadOrders() {
+            toggleLoading(true);
+            const ordersList = document.getElementById('ordersList');
+            ordersList.innerHTML = '';
+            
+            try {
+                const response = await fetch(`${API_URL}/orders`);
+                if (!response.ok) throw new Error('Не вдалося завантажити замовлення');
+                
+                const orders = await response.json();
+                
+                if (!orders || orders.length === 0) {
+                    ordersList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Немає активних замовлень</p>';
+                    return;
+                }
+                
+                orders.forEach(order => {
+                    const orderCard = document.createElement('div');
+                    orderCard.className = 'order-card fade-in';
+                    
+                    const statusText = getStatusText(order.status);
+                    const statusClass = getStatusClass(order.status);
+                    const createdAt = new Date(order.createdAt).toLocaleString();
+                    
+                    // Відображаємо всі товари з замовлення
+                    let itemsHtml = '';
+                    order.items.forEach((item, index) => {
+                        itemsHtml += `
+                            <div class="detail-row">
+                                <span class="detail-label">Препарат ${index + 1}:</span>
+                                <span>${item.medicineName}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Кількість:</span>
+                                <span>${item.quantity} од.</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Ціна:</span>
+                                <span>${item.unitPrice} грн × ${item.quantity} = ${item.totalPrice} грн</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Постачальник:</span>
+                                <span>${item.supplier}</span>
+                            </div>
+                            ${index < order.items.length - 1 ? '<hr>' : ''}
+                        `;
+                    });
+                    
+                    orderCard.innerHTML = `
+                        <h3>
+                            <span>Замовлення №${order.invoiceNumber || order._id}</span>
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                        </h3>
+                        
+                        <div class="order-details">
+                            ${itemsHtml}
+                            <hr>
+                            <div class="detail-row">
+                                <span class="detail-label">Дата створення:</span>
+                                <span>${createdAt}</span>
+                            </div>
+                            ${order.deliveredAt ? `
+                            <div class="detail-row">
+                                <span class="detail-label">Дата доставки:</span>
+                                <span>${new Date(order.deliveredAt).toLocaleString()}</span>
+                            </div>
+                            ` : ''}
+                            <div class="detail-row">
+                                <span class="detail-label">Загальна сума:</span>
+                                <span><strong>${order.totalAmount} грн</strong></span>
+                            </div>
+                            <div class="actions">
+                                ${order.status === 'delivered' ? `
+                                <button class="success" onclick="completeOrder('${order._id}')">
+                                    <i class="fas fa-check-circle"></i> Провести
+                                </button>
+                                ` : ''}
+                                <button class="info" onclick="downloadInvoice('${order._id}')">
+                                    <i class="fas fa-file-download"></i> Накладна
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    ordersList.appendChild(orderCard);
+                });
+                
+            } catch (error) {
+                console.error('Помилка завантаження замовлень:', error);
+                showAlert(`Помилка: ${error.message}`, 'error');
+            } finally {
+                toggleLoading(false);
+            }
+        }
+        
+        // Допоміжні функції для статусів
+        function getStatusText(status) {
+            const statusMap = {
+                'created': 'Створено',
+                'delivered': 'Доставлено',
+                'completed': 'Виконано'
+            };
+            return statusMap[status] || status;
+        }
+        
+        function getStatusClass(status) {
+            const classMap = {
+                'created': 'status-created',
+                'delivered': 'status-delivered',
+                'completed': 'status-completed'
+            };
+            return classMap[status] || '';
+        }
+        
+        // Проведення замовлення (поповнення запасів)
+        async function completeOrder(orderId) {
+            try {
+                const response = await fetch(`${API_URL}/orders/${orderId}/complete`, {
+                    method: 'POST'
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Помилка при проведенні замовлення');
+                }
+                
+                const result = await response.json();
+                showAlert('Замовлення проведено! Кількість ліків оновлено.');
+                await loadOrders();
+                
+            } catch (error) {
+                console.error('Помилка проведення замовлення:', error);
+                showAlert(`Помилка: ${error.message}`, 'error');
+            }
+        }
+        
+        // Завантаження накладної
+        async function downloadInvoice(orderId) {
+            try {
+                toggleLoading(true);
+                const response = await fetch(`${API_URL}/orders/${orderId}/invoice`, {
+                    method: 'POST'
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Не вдалося сформувати накладну');
+                }
+                
+                const invoiceData = await response.json();
+                
+                if (invoiceData.pdf) {
+                    // Створюємо тимчасове посилання для завантаження PDF
+                    const byteCharacters = atob(invoiceData.pdf);
+                    const byteNumbers = new Array(byteCharacters.length);
+                    for (let i = 0; i < byteCharacters.length; i++) {
+                        byteNumbers[i] = byteCharacters.charCodeAt(i);
+                    }
+                    const byteArray = new Uint8Array(byteNumbers);
+                    const blob = new Blob([byteArray], {type: 'application/pdf'});
+                    const url = URL.createObjectURL(blob);
+                    
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `Накладна_${invoiceData.invoiceNumber || orderId}.pdf`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                } else {
+                    throw new Error('Накладна не сформована');
+                }
+            } catch (error) {
+                console.error('Помилка завантаження накладної:', error);
+                showAlert(`Помилка: ${error.message}`, 'error');
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        // Функції для роботи з новою формою замовлення
+        function calculateItemTotal(itemContainer) {
+            const quantity = itemContainer.querySelector('.quantity-input').value;
+            const price = itemContainer.querySelector('.price-input').value;
+            
+            if (quantity && price) {
+                const total = (parseFloat(quantity) * parseFloat(price)).toFixed(2);
+                itemContainer.querySelector('.total-price').value = total;
+            }
+        }
+
+        function calculateOrderTotal() {
+            let total = 0;
+            document.querySelectorAll('.order-item').forEach(item => {
+                const itemTotal = item.querySelector('.total-price').value;
+                if (itemTotal) {
+                    total += parseFloat(itemTotal);
+                }
+            });
+            document.getElementById('orderTotalAmount').value = total.toFixed(2);
+        }
+
+        function addEventListenersToNewItem(item) {
+            item.querySelector('.medicine-select').addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const itemContainer = this.closest('.order-item');
+                
+                if (selectedOption.value) {
+                    itemContainer.querySelector('.price-input').value = selectedOption.dataset.price;
+                    itemContainer.querySelector('.supplier-input').value = selectedOption.dataset.supplier;
+                    calculateItemTotal(itemContainer);
+                } else {
+                    itemContainer.querySelector('.price-input').value = '';
+                    itemContainer.querySelector('.supplier-input').value = '';
+                    itemContainer.querySelector('.total-price').value = '';
+                }
+                calculateOrderTotal();
+            });
+            
+            item.querySelector('.quantity-input').addEventListener('input', function() {
+                calculateItemTotal(this.closest('.order-item'));
+                calculateOrderTotal();
+            });
+        }
+        
+        // Функція для симуляції продажів
+        async function simulateSales() {
+            try {
+                const response = await fetch(`${API_URL}/medicines`);
+                if (!response.ok) throw new Error('Не вдалося завантажити ліки');
+                
+                const medicines = await response.json();
+                if (!medicines.length) return;
+
+                const randomIndex = Math.floor(Math.random() * medicines.length);
+                const medicine = medicines[randomIndex];
+                const saleQty = Math.floor(Math.random() * 3) + 1;
+                
+                if (medicine.quantity >= saleQty) {
+                    const updateResponse = await fetch(`${API_URL}/medicines/${medicine._id}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ quantity: medicine.quantity - saleQty })
+                    });
+                    
+                    const updatedMedicine = await updateResponse.json();
+                    const now = new Date().toLocaleTimeString();
+                    
+                    // Додаємо запис у лог
+                    const logEntry = document.createElement('p');
+                    logEntry.innerHTML = `<span style="color: var(--text-secondary)">[${now}]</span> Продано ${saleQty} од. <strong>${medicine.name}</strong>. Залишилось: ${updatedMedicine.quantity}`;
+                    document.getElementById('salesLog').prepend(logEntry);
+                    
+                    // Обмежуємо кількість записів у лозі
+                    if (document.getElementById('salesLog').children.length > 10) {
+                        document.getElementById('salesLog').lastChild.remove();
+                    }
+                }
+            } catch (error) {
+                console.error('Помилка симуляції продажу:', error);
+            }
+        }
+
+        // Запускаємо симуляцію кожні 5-15 секунд
+        function startSalesSimulation() {
+            const interval = Math.floor(Math.random() * 10000) + 5000; // 5-15 сек
+            setTimeout(() => {
+                simulateSales().finally(() => startSalesSimulation());
+            }, interval);
+        }
+        
+        // Ініціалізація при завантаженні сторінки
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Завантаження ліків для форми замовлення
+            const medicines = await loadMedicines();
+            const medicineSelects = document.querySelectorAll('.medicine-select');
+            
+            // Заповнюємо випадаючі списки
+            medicineSelects.forEach(select => {
+                select.innerHTML = '<option value="">Оберіть препарат</option>';
+                medicines.forEach(medicine => {
+                    const option = document.createElement('option');
+                    option.value = medicine._id;
+                    option.textContent = medicine.name;
+                    option.dataset.price = medicine.price;
+                    option.dataset.supplier = medicine.supplier;
+                    select.appendChild(option);
+                });
+            });
+
+            // Додавання нового рядка препарату
+            document.getElementById('addItemBtn').addEventListener('click', () => {
+                const newItem = document.querySelector('.order-item').cloneNode(true);
+                newItem.querySelector('.medicine-select').selectedIndex = 0;
+                newItem.querySelector('.quantity-input').value = '';
+                newItem.querySelector('.price-input').value = '';
+                newItem.querySelector('.supplier-input').value = '';
+                newItem.querySelector('.total-price').value = '';
+                document.getElementById('orderItemsContainer').appendChild(newItem);
+                addEventListenersToNewItem(newItem);
+                newItem.scrollIntoView({ behavior: 'smooth' });
+            });
+
+            // Видалення рядка препарату
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-item-btn')) {
+                    const itemContainer = e.target.closest('.order-item');
+                    if (document.querySelectorAll('.order-item').length > 1) {
+                        itemContainer.classList.add('fade-out');
+                        setTimeout(() => {
+                            itemContainer.remove();
+                            calculateOrderTotal();
+                        }, 300);
+                    } else {
+                        showAlert('Замовлення повинно містити хоча б один препарат', 'error');
+                    }
+                }
+            });
+
+            // Відправка форми
+            document.getElementById('createOrderForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const items = [];
+                let isValid = true;
+                
+                document.querySelectorAll('.order-item').forEach(item => {
+                    const medicineSelect = item.querySelector('.medicine-select');
+                    const quantityInput = item.querySelector('.quantity-input');
+                    
+                    const medicineId = medicineSelect.value;
+                    const quantity = Number(quantityInput.value);
+                    
+                    // Перевірка на коректність даних
+                    if (!medicineId || isNaN(quantity) || quantity <= 0) {
+                        isValid = false;
+                        if (!medicineId) {
+                            medicineSelect.style.borderColor = 'var(--danger)';
+                        } else {
+                            medicineSelect.style.borderColor = '';
+                        }
+                        
+                        if (isNaN(quantity) || quantity <= 0) {
+                            quantityInput.style.borderColor = 'var(--danger)';
+                            showAlert('Будь ласка, введіть коректну кількість (ціле число більше 0)', 'error');
+                        } else {
+                            quantityInput.style.borderColor = '';
+                        }
+                        return;
+                    }
+                    
+                    items.push({
+                        medicineId: medicineId,
+                        quantity: quantity
+                    });
+                });
+                
+                if (!isValid || items.length === 0) {
+                    showAlert('Будь ласка, заповніть всі поля для кожного препарату', 'error');
+                    return;
+                }
+                
+                try {
+                    toggleLoading(true, 'loadingOrders');
+                    const response = await fetch(`${API_URL}/orders`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ items })
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Помилка при створенні замовлення');
+                    }
+                    
+                    const order = await response.json();
+                    showAlert(`Замовлення №${order.invoiceNumber} успішно створено!`);
+                    
+                    // Очищаємо форму
+                    const firstItem = document.querySelector('.order-item');
+                    firstItem.querySelector('.medicine-select').selectedIndex = 0;
+                    firstItem.querySelector('.quantity-input').value = '';
+                    firstItem.querySelector('.price-input').value = '';
+                    firstItem.querySelector('.supplier-input').value = '';
+                    firstItem.querySelector('.total-price').value = '';
+                    
+                    // Видаляємо всі додаткові рядки, залишаємо тільки один
+                    const allItems = document.querySelectorAll('.order-item');
+                    for (let i = 1; i < allItems.length; i++) {
+                        allItems[i].remove();
+                    }
+                    
+                    document.getElementById('orderTotalAmount').value = '0.00';
+                    
+                    await loadOrders();
+                } catch (error) {
+                    console.error('Помилка створення замовлення:', error);
+                    showAlert(`Помилка: ${error.message}`, 'error');
+                } finally {
+                    toggleLoading(false, 'loadingOrders');
+                }
+            });
+
+            // Завантаження активних замовлень
+            loadOrders();
+            startSalesSimulation();
+            
+            // Оновлюємо список замовлень кожні 10 секунд
+            setInterval(loadOrders, 10000);
+        });
+    </script>
+</body>
+</html>
