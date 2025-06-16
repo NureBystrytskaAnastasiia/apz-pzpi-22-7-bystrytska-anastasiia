@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "author": "larbi alaoui mrani",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": -38.4, "left": 4.84, "attrs": {} },
+    { "type": "wokwi-led", "id": "led1", "top": -42, "left": -159.4, "attrs": { "color": "red" } },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 24,
+      "left": -144.55,
+      "rotate": 90,
+      "attrs": { "value": "1000" }
+    },
+    { "type": "wokwi-dht22", "id": "dht1", "top": -38.1, "left": -255, "attrs": {} },
+    { "type": "wokwi-servo", "id": "servo1", "top": 46, "left": 240, "attrs": {} },
+    {
+      "type": "wokwi-led-ring",
+      "id": "ring1",
+      "top": -268.16,
+      "left": 106.79,
+      "attrs": { "pixels": "16" }
+    }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "r1:1", "led1:A", "green", [ "h0" ] ],
+    [ "r1:2", "esp:26", "purple", [ "h9.6", "v18", "h115.05" ] ],
+    [ "led1:C", "esp:GND.1", "black", [ "v0" ] ],
+    [ "esp:5V", "dht1:VCC", "red", [ "h0" ] ],
+    [ "dht1:SDA", "esp:12", "blue", [ "v0" ] ],
+    [ "servo1:GND", "esp:GND.3", "black", [ "h-9.6", "v-38.4" ] ],
+    [ "dht1:GND", "esp:GND.1", "black", [ "v0" ] ],
+    [ "servo1:V+", "esp:5V", "red", [ "h-9.6", "v96.1", "h-134.4" ] ],
+    [ "servo1:PWM", "esp:4", "yellow", [ "h0" ] ],
+    [ "ring1:GND", "esp:GND.2", "black", [ "v0" ] ],
+    [ "ring1:VCC", "esp:5V", "red", [ "v336", "h-105.6", "v-9.6" ] ],
+    [ "ring1:DIN", "esp:16", "cyan", [ "v0" ] ]
+  ],
+  "dependencies": {}
+}
