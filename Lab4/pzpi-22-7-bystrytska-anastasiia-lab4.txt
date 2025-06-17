@@ -1,1 +1,511 @@
+Міністерство освіти і науки України 
+Харківський національний університет радіоелектроніки
+
+
+
+
+
+Кафедра «Програмної інженерії»
+
+
+
+Дисципліна «Архітектура програмного
+забезпечення» 
+Лабораторна робота №4
+«РОЗРОБКА ПРОГРАМНОЇ АРХІТЕКТУРИ ТА СТВОРЕННЯ І ВІДЛАГОДЖЕННЯ ПРОГРАМНОГО КОДУ ПРОГРАМНОГО ЗАСТОСУНКУ МОБІЛЬНОГО ПРИСТРОЮ ДЛЯ ПРОГРАМНОЇ СИСТЕМИ»
+
+
+
+
+
+
+
+
+Виконала:
+ст. гр. ПЗПІ-22-7
+Бистрицька А.І	Прийняв:
+ ст. викл.
+Сокорчук І.П
+
+Харків – 2025
+4 РОЗРОБКА ПРОГРАМНОЇ АРХІТЕКТУРИ ТА СТВОРЕННЯ І ВІДЛАГОДЖЕННЯ ПРОГРАМНОГО КОДУ ПРОГРАМНОГО ЗАСТОСУНКУ МОБІЛЬНОГО ПРИСТРОЮ ДЛЯ ПРОГРАМНОЇ СИСТЕМИ
+4.1 Історія змін
+Таблиця 4.1 – Історія змін
+№	Дата	Версія	Опис змін
+1	16.06.2025	0.1	Створено «Історія Змін»
+2	16.06.2025	0.1	Створено «Завдання»
+3	16.06.2025	0.1	Створено «Опис виконаної роботи»
+4	16.06.2025	0.1	Створено «Висновки»
+5	17.06.2025	0.1	Створено «ДОДАТОК А»
+6	16.06.2025	0.1	Створено «ДОДАТОК Б»
+7	16.06.2025	0.1	Створено «ДОДАТОК В»
+
+4.2 Завдання
+Метою даного завдання є створення серверної частини програмної системи, яка забезпечує ефективний моніторинг лікарських засобів через мобільний застосунок, контроль умов їх зберігання, облік та обробку замовлень, а також реалізацію доступу користувачів із різними ролями (адміністратор, фармацевт).
+4.3 Опис виконаної роботи 
+4.3.1 Архітектура та UI
+Мобільний застосунок розроблено за спрощеною одноактивітійною архітектурою (Single-Activity Architecture) з використанням сучасного UI-фреймворку Jetpack Compose. Весь користувацький інтерфейс побудовано у вигляді набору Composable-функцій — кожна з них відповідає за окремий екран або функціональний модуль (логін, реєстрація, основні робочі екрани для адміністратора і фармацевта, управління медикаментами, замовленнями, користувачами, статистикою тощо). Це дозволяє будувати декларативний UI, що автоматично реагує на зміни стану.
+Для навігації між екранами використовується NavController із бібліотеки Jetpack Navigation Compose, що дозволяє гнучко управляти маршрутами та стеком навігації, з урахуванням ролей користувачів. Управління станом екрану здійснюється за допомогою Compose State API та ViewModel, які працюють у парі з Kotlin Coroutines для асинхронних операцій — це забезпечує плавність роботи інтерфейсу без блокувань основного потоку.
+4.3.2 Мережевий шар
+Для організації мережевої взаємодії застосунок використовує бібліотеку Retrofit — потужний HTTP-клієнт, який дозволяє просто і типобезпечно виконувати REST-запити. Для серіалізації та десеріалізації даних застосовується Gson, що перетворює JSON відповіді від сервера у Kotlin-моделі та навпаки.
+Кожен доменний модуль (автентифікація, медикаменти, замовлення, користувачі) винесений у окремий API-сервіс, описаний у вигляді інтерфейсу з анотаціями @GET, @POST, @PUT, @DELETE. Для коректного асинхронного виконання мережевих викликів застосовано Kotlin Coroutines — більшість методів у API-сервісах позначено як suspend, що дозволяє легко викликати їх у ViewModel через launch. В інших випадках використовується стандартний callback-механізм Retrofit.
+Для передачі токена авторизації використовується інтерцептор, який автоматично додає JWT у заголовок кожного запиту. Це підвищує безпеку і спрощує роботу з авторизацією.
+4.3.3 Локальне зберігання
+Для збереження сесійної інформації, зокрема JWT-токена та userId, застосовано кастомний клас TokenStorage, який працює на основі DataStore (сучасна заміна SharedPreferences). DataStore забезпечує безпечне, асинхронне та типобезпечне зберігання налаштувань і стану застосунку.
+Цей клас використовується для збереження токена після успішного входу в систему, а також для отримання токена при подальших запитах до API. Такий підхід гарантує, що користувач залишатиметься авторизованим між сесіями, доки токен дійсний.
+4.3.4 Ролі користувачів і безпека
+У застосунку реалізовано розмежування доступу відповідно до ролей користувачів: адміністратора і фармацевта. Роль визначається на стороні сервера і передається у JWT-токені, який аналізується клієнтською частиною для умовного рендерингу UI та контролю доступу.
+Адміністратор має повний доступ до функціоналу: керує користувачами, медикаментами, замовленнями, статистикою. Фармацевт має обмежений доступ і не може керувати користувачами — йому доступні тільки операції, пов’язані з медикаментами, умовами зберігання і замовленнями.
+Сервер здійснює додаткову валідацію ролей для запобігання несанкціонованого доступу через API. Це підвищує безпеку системи і гарантує, що навіть у разі спроби обійти UI обмеження, на сервері запити без відповідних прав не виконуються.
+4.3.5 Робота з даними та бізнес-логіка
+Основною бізнес-логікою застосунку є підтримка CRUD-операцій над сутностями, такими як користувачі, медикаменти, умови зберігання, замовлення. Всі дані отримуються і відправляються через REST API. Кожен екран при ініціалізації виконує асинхронний виклик API для завантаження відповідних даних, після чого локальний стан оновлюється і UI автоматично перемальовується.
+Операції додавання, редагування та видалення даних виконуються через корутини або Retrofit Callback-и, з подальшим оновленням відображення списків. Впроваджена базова валідація введених даних та обробка помилок запитів.
+Для користувача передбачено інтуїтивний інтерфейс із чіткою структурою та швидкою реакцією завдяки використанню Jetpack Compose, що полегшує навігацію і роботу з інформацією.
+4.3.6 Локалізація і форматування
+Застосунок підтримує інтернаціоналізацію текстових ресурсів через стандартні Android String Resources. Це дає можливість адаптувати інтерфейс під мовні налаштування пристрою користувача без додаткових зусиль.
+Для коректного відображення дат і часу застосовується клас SimpleDateFormat з локаллю, що автоматично адаптує форматування під регіональні стандарти користувача.
+4.3.7 Використані технології та бібліотеки
+У проєкті застосовано сучасний стек технологій для Android-розробки:
+•	Kotlin як основна мова програмування, що забезпечує чистий та безпечний код із підтримкою корутин для асинхронної роботи.
+•	Jetpack Compose — декларативний UI-фреймворк для побудови гнучкого та продуктивного інтерфейсу.
+•	Navigation Component для Compose — для управління навігацією та маршрутизацією.
+•	Retrofit — HTTP-клієнт для роботи з REST API.
+•	Gson — для серіалізації та десеріалізації JSON.
+•	Kotlin Coroutines — для спрощення асинхронних викликів і обробки потоків.
+•	DataStore (на основі Preferences) — для локального зберігання конфігурацій і сесійної інформації.
+•	Material Design Components — для сучасного оформлення UI.
+•	JWT — для авторизації і розмежування доступу.
+4.4 Висновки 
+Було розроблено мобільний застосунок для автоматизації аптечної мережі з підтримкою ролей адміністратора та фармацевта. Застосунок побудовано на Kotlin та Jetpack Compose з використанням Retrofit для роботи з REST API і DataStore для локального зберігання даних. Реалізовано функціонал авторизації, перегляду статистики, керування медикаментами, замовленнями та користувачами з розмежуванням прав доступу. Створений застосунок забезпечує зручний та безпечний інтерфейс, сприяє підвищенню ефективності роботи системи та готовий до подальшого розвитку.
+
+ 
+ДОДАТОК А
+Хронологічний опис та посилання:
+Відео доповіді на Youtube: https://youtu.be/dDtu2BLgMew
+Хронологічний опис доповіді: 	
+00:00 Вступна частина 
+00:57 Вхід та реєстрація для адміністратора 
+01:37 Адмін панель 
+01:47 Статистика 
+02:01 Статус зберігання ліків 
+02:28 Управління ліками 
+03:28 Управління замовленнями 
+04:00 Управління кімнатам та датчиками 
+04:21 Управління користувачами для адміністратора 
+04:48 Вхід та реєстрація для фармацевта 
+05:18 Панель фармацевта
+ 
+ДОДАТОК Б 
+Графічні матеріали
+ 
+Рисунок Б.1 – UML – діаграма прецедентів
+ 
+Рисунок Б.2 – UML – діаграма компонентів
+ 
+Рисунок Б.3 – UML – діаграма діяльності 
+ 
+Рисунок Б.4 – UML – діаграма станів
+ 
+ДОДАТОК В
+Програмний код
+1.	Динамічна навігація між різним вкладками 
+        bottomBar = {
+            NavigationBar(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                modifier = Modifier.height(AppDimensions.bottomNavHeight)
+            ) {
+                NavigationBarItem(
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Filled.Analytics,
+                            contentDescription = "Статистика",
+                            tint = if (currentScreen == AdminScreenType.STATS) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            }
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = "Статистика",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = if (currentScreen == AdminScreenType.STATS) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            }
+                        )
+                    },
+                    selected = currentScreen == AdminScreenType.STATS,
+                    onClick = { currentScreen = AdminScreenType.STATS },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        indicatorColor = MaterialTheme.colorScheme.surface
+                    )
+                )
+                NavigationBarItem(
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Filled.Medication,
+                            contentDescription = "Ліки",
+                            tint = if (currentScreen == AdminScreenType.MEDICINES) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            }
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = "Ліки",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = if (currentScreen == AdminScreenType.MEDICINES) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            }
+                        )
+                    },
+                    selected = currentScreen == AdminScreenType.MEDICINES,
+                    onClick = { currentScreen = AdminScreenType.MEDICINES },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        indicatorColor = MaterialTheme.colorScheme.surface
+                    )
+                )
+                NavigationBarItem(
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Filled.ShoppingCart,
+                            contentDescription = "Замовлення",
+                            tint = if (currentScreen == AdminScreenType.ORDERS) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            }
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = "Замовлення",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = if (currentScreen == AdminScreenType.ORDERS) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            }
+                        )
+                    },
+                    selected = currentScreen == AdminScreenType.ORDERS,
+                    onClick = {
+                        currentScreen = AdminScreenType.ORDERS
+                        onOrdersClick()
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        indicatorColor = MaterialTheme.colorScheme.surface
+                    )
+                )
+                NavigationBarItem(
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Filled.Home,
+                            contentDescription = "Кімнати",
+                            tint = if (currentScreen == AdminScreenType.ROOMS) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            }
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = "Кімнати",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = if (currentScreen == AdminScreenType.ROOMS) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            }
+                        )
+                    },
+                    selected = currentScreen == AdminScreenType.ROOMS,
+                    onClick = {
+                        currentScreen = AdminScreenType.ROOMS
+                        onRoomsClick()
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        indicatorColor = MaterialTheme.colorScheme.surface
+                    )
+                )
+                NavigationBarItem(
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Filled.People,
+                            contentDescription = "Користувачі",
+                            tint = if (currentScreen == AdminScreenType.USERS) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            }
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = "Користувачі",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = if (currentScreen == AdminScreenType.USERS) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            }
+                        )
+                    },
+                    selected = currentScreen == AdminScreenType.USERS,
+                    onClick = {
+                        currentScreen = AdminScreenType.USERS
+                        onUsersClick()
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        indicatorColor = MaterialTheme.colorScheme.surface
+                    )
+                )
+            }
+        }
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+            when (currentScreen) {
+                AdminScreenType.STATS -> AdminStatsView(viewModel)
+                AdminScreenType.MEDICINES -> MedicineListScreen(
+                    onBack = {},
+                    viewModel = viewModel,
+                    isAdmin = true
+                )
+                AdminScreenType.ORDERS -> {} // Navigation handled via onOrdersClick
+                AdminScreenType.ROOMS -> {} // Navigation handled via onRoomsClick
+                AdminScreenType.USERS -> {} // Navigation handled via onUsersClick
+            }
+        }
+    }
+
+2.	Універсальний екран аутентифікації
+3.	@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AuthScreen(viewModel: LoginViewModel, onLoginSuccess: (String) -> Unit) {
+    var isLoginMode by remember { mutableStateOf(true) }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("") }
+    var role by remember { mutableStateOf("pharmacist") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var showForgotPassword by remember { mutableStateOf(false) }
+
+    val loginResult by viewModel.loginResult.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val isLoggedIn by viewModel.isLoggedIn.collectAsState()
+    val userRole by viewModel.userRole.collectAsState()
+
+    LaunchedEffect(isLoggedIn) {
+        if (isLoggedIn) {
+            userRole?.let { onLoginSuccess(it) }
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f), MaterialTheme.colorScheme.background, MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))))) {
+        Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(AppDimensions.paddingXXLarge), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+            Box(modifier = Modifier.size(80.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) {
+                Icon(imageVector = if (showForgotPassword) Icons.Default.Lock else if (isLoginMode) Icons.Default.Person else Icons.Default.Email, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(AppDimensions.iconSizeLarge))
+            }
+
+            Spacer(modifier = Modifier.height(AppDimensions.marginXXLarge))
+
+            Text(text = when { showForgotPassword -> "Відновлення паролю" isLoginMode -> "Вхід в систему" else -> "Створення акаунту" }, style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.onBackground, textAlign = TextAlign.Center)
+
+            Text(text = when { showForgotPassword -> "Введіть email для відновлення паролю" isLoginMode -> "Введіть дані для входу" else -> "Заповніть форму для реєстрації" }, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center, modifier = Modifier.padding(top = AppDimensions.paddingSmall))
+
+            Spacer(modifier = Modifier.height(AppDimensions.marginXXXLarge))
+
+            Card(modifier = Modifier.fillMaxWidth(), shape = AppShapes.cardLarge, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)) {
+                Column(modifier = Modifier.padding(AppDimensions.paddingXXLarge), verticalArrangement = Arrangement.spacedBy(AppDimensions.marginLarge)) {
+                    if (showForgotPassword) {
+                        StyledTextField(value = email, onValueChange = { email = it }, label = "Email адреса", leadingIcon = Icons.Default.Email, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email))
+
+                        StyledButton(onClick = { viewModel.forgotPassword(email) }, enabled = !isLoading && email.isNotBlank(), isLoading = isLoading, text = "Відновити пароль", modifier = Modifier.fillMaxWidth())
+
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                            TextButton(onClick = { showForgotPassword = false; viewModel.clearMessage() }) {
+                                Text(text = "Назад до входу", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                            }
+                        }
+                    } else {
+                        if (!isLoginMode) {
+                            StyledTextField(value = name, onValueChange = { name = it }, label = "Повне ім'я", leadingIcon = Icons.Default.Person)
+
+                            Text(text = "Оберіть роль:", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(top = AppDimensions.paddingSmall))
+
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                                RoleOption(selected = role == "pharmacist", onClick = { role = "pharmacist" }, text = "Фармацевт")
+                                RoleOption(selected = role == "admin", onClick = { role = "admin" }, text = "Адміністратор")
+                            }
+                        }
+
+                        StyledTextField(value = email, onValueChange = { email = it }, label = "Email адреса", leadingIcon = Icons.Default.Email, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email))
+
+                        StyledTextField(value = password, onValueChange = { password = it }, label = "Пароль", leadingIcon = Icons.Default.Lock, isPassword = true, passwordVisible = passwordVisible, onPasswordVisibilityToggle = { passwordVisible = !passwordVisible })
+
+                        StyledButton(onClick = { if (isLoginMode) viewModel.login(email, password) else viewModel.register(email, password, name, role) }, enabled = !isLoading && email.isNotBlank() && password.isNotBlank() && (isLoginMode || name.isNotBlank()), isLoading = isLoading, text = if (isLoginMode) "Увійти" else "Зареєструватися", modifier = Modifier.fillMaxWidth())
+                    }
+                }
+            }
+
+            if (!showForgotPassword) {
+                Spacer(modifier = Modifier.height(AppDimensions.marginLarge))
+
+                Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
+                    TextButton(onClick = { isLoginMode = !isLoginMode; viewModel.clearMessage() }) {
+                        Text(text = if (isLoginMode) "Немає акаунту? Зареєструватися" else "Вже є акаунт? Увійти", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
+                    }
+                }
+
+                if (isLoginMode) {
+                    TextButton(onClick = { showForgotPassword = true; viewModel.clearMessage() }) {
+                        Text(text = "Забули пароль?", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            }
+
+            loginResult?.let { message ->
+                Spacer(modifier = Modifier.height(AppDimensions.marginLarge))
+                StatusCard(message = message, isSuccess = message.contains("Успішн", ignoreCase = true))
+            }
+        }
+    }
+}
+
+@Composable
+private fun StyledTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    leadingIcon: ImageVector,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    isPassword: Boolean = false,
+    passwordVisible: Boolean = false,
+    onPasswordVisibilityToggle: (() -> Unit)? = null
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(text = label, style = MaterialTheme.typography.bodyMedium) },
+        leadingIcon = { Icon(imageVector = leadingIcon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
+        trailingIcon = if (isPassword) {
+            {
+                IconButton(onClick = { onPasswordVisibilityToggle?.invoke() }) {
+                    Icon(imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff, contentDescription = if (passwordVisible) "Сховати пароль" else "Показати пароль", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        } else null,
+        visualTransformation = if (isPassword && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
+        keyboardOptions = keyboardOptions,
+        shape = AppShapes.textFieldMedium,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+            focusedLabelColor = MaterialTheme.colorScheme.primary,
+            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+        ),
+        modifier = Modifier.fillMaxWidth().height(AppDimensions.textFieldHeightLarge)
+    )
+}
+
+@Composable
+private fun StyledButton(
+    onClick: () -> Unit,
+    enabled: Boolean,
+    isLoading: Boolean,
+    text: String,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        shape = AppShapes.buttonMedium,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+            disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+        ),
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp, pressedElevation = 8.dp, disabledElevation = 0.dp),
+        modifier = modifier.height(AppDimensions.buttonHeightLarge)
+    ) {
+        if (isLoading) {
+            CircularProgressIndicator(modifier = Modifier.size(AppDimensions.iconSizeMedium), color = MaterialTheme.colorScheme.onPrimary, strokeWidth = 2.dp)
+        } else {
+            Text(text = text, style = MaterialTheme.typography.labelLarge)
+        }
+    }
+}
+
+@Composable
+private fun RoleOption(selected: Boolean, onClick: () -> Unit, text: String) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = AppDimensions.paddingSmall)) {
+        RadioButton(
+            selected = selected,
+            onClick = onClick,
+            colors = RadioButtonDefaults.colors(
+                selectedColor = MaterialTheme.colorScheme.primary,
+                unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        )
+        Text(text = text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(start = AppDimensions.paddingSmall))
+    }
+}
+
+@Composable
+private fun StatusCard(message: String, isSuccess: Boolean) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = AppShapes.cardSmall,
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSuccess) MaterialTheme.extendedColors.successContainer else MaterialTheme.extendedColors.errorContainer
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(modifier = Modifier.padding(AppDimensions.paddingLarge), verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = if (isSuccess) Icons.Default.Person else Icons.Default.Lock,
+                contentDescription = null,
+                tint = if (isSuccess) MaterialTheme.extendedColors.onSuccessContainer else MaterialTheme.extendedColors.onErrorContainer,
+                modifier = Modifier.size(AppDimensions.iconSizeMedium)
+            )
+            Spacer(modifier = Modifier.width(AppDimensions.paddingMedium))
+            Text(text = message, style = MaterialTheme.typography.bodyMedium, color = if (isSuccess) MaterialTheme.extendedColors.onSuccessContainer else MaterialTheme.extendedColors.onErrorContainer, modifier = Modifier.weight(1f))
+        }
+    }
+}
+
 
