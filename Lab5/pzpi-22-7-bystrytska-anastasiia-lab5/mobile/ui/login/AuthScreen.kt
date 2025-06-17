@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -57,9 +58,9 @@ fun AuthScreen(viewModel: LoginViewModel, onLoginSuccess: (String) -> Unit) {
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-                        MaterialTheme.colorScheme.background,
-                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        Purple10,
+                        BackgroundLight,
+                        Purple20
                     )
                 )
             )
@@ -72,12 +73,17 @@ fun AuthScreen(viewModel: LoginViewModel, onLoginSuccess: (String) -> Unit) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Логотип або декоративний елемент
+            // Логотип з градієнтом
             Box(
                 modifier = Modifier
-                    .size(80.dp)
+                    .size(100.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary),
+                    .background(
+                        brush = Brush.linearGradient(
+                            colors = PurpleGradientColors
+
+                        )
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -85,7 +91,7 @@ fun AuthScreen(viewModel: LoginViewModel, onLoginSuccess: (String) -> Unit) {
                     else if (isLoginMode) Icons.Default.Person
                     else Icons.Default.Email,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary,
+                    tint = Color.White,
                     modifier = Modifier.size(AppDimensions.iconSizeLarge)
                 )
             }
@@ -99,8 +105,8 @@ fun AuthScreen(viewModel: LoginViewModel, onLoginSuccess: (String) -> Unit) {
                     isLoginMode -> "Вхід в систему"
                     else -> "Створення акаунту"
                 },
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onBackground,
+                style = MaterialTheme.typography.headlineMedium,
+                color = TextPrimary,
                 textAlign = TextAlign.Center
             )
 
@@ -111,7 +117,7 @@ fun AuthScreen(viewModel: LoginViewModel, onLoginSuccess: (String) -> Unit) {
                     else -> "Заповніть форму для реєстрації"
                 },
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = TextSecondary,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = AppDimensions.paddingSmall)
             )
@@ -123,7 +129,7 @@ fun AuthScreen(viewModel: LoginViewModel, onLoginSuccess: (String) -> Unit) {
                 modifier = Modifier.fillMaxWidth(),
                 shape = AppShapes.cardLarge,
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = SurfaceLight
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
@@ -162,7 +168,7 @@ fun AuthScreen(viewModel: LoginViewModel, onLoginSuccess: (String) -> Unit) {
                                 Text(
                                     text = "Назад до входу",
                                     style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.primary
+                                    color = AccentPrimary
                                 )
                             }
                         }
@@ -181,7 +187,7 @@ fun AuthScreen(viewModel: LoginViewModel, onLoginSuccess: (String) -> Unit) {
                             Text(
                                 text = "Оберіть роль:",
                                 style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSurface,
+                                color = TextPrimary,
                                 modifier = Modifier.padding(top = AppDimensions.paddingSmall)
                             )
 
@@ -256,7 +262,7 @@ fun AuthScreen(viewModel: LoginViewModel, onLoginSuccess: (String) -> Unit) {
                             text = if (isLoginMode) "Немає акаунту? Зареєструватися"
                             else "Вже є акаунт? Увійти",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.primary
+                            color = AccentPrimary
                         )
                     }
                 }
@@ -272,7 +278,7 @@ fun AuthScreen(viewModel: LoginViewModel, onLoginSuccess: (String) -> Unit) {
                         Text(
                             text = "Забули пароль?",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = TextSecondary
                         )
                     }
                 }
@@ -308,14 +314,15 @@ private fun StyledTextField(
         label = {
             Text(
                 text = label,
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextSecondary
             )
         },
         leadingIcon = {
             Icon(
                 imageVector = leadingIcon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                tint = Purple50
             )
         },
         trailingIcon = if (isPassword) {
@@ -325,7 +332,7 @@ private fun StyledTextField(
                         imageVector = if (passwordVisible) Icons.Filled.Visibility
                         else Icons.Filled.VisibilityOff,
                         contentDescription = if (passwordVisible) "Сховати пароль" else "Показати пароль",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = Purple50
                     )
                 }
             }
@@ -335,10 +342,12 @@ private fun StyledTextField(
         keyboardOptions = keyboardOptions,
         shape = AppShapes.textFieldMedium,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = MaterialTheme.colorScheme.primary,
-            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-            focusedLabelColor = MaterialTheme.colorScheme.primary,
-            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+            focusedBorderColor = AccentPrimary,
+            unfocusedBorderColor = Purple30,
+            focusedLabelColor = AccentPrimary,
+            unfocusedLabelColor = Purple60,
+            focusedTextColor = TextPrimary,
+            unfocusedTextColor = TextPrimary
         ),
         modifier = Modifier
             .fillMaxWidth()
@@ -359,10 +368,10 @@ private fun StyledButton(
         enabled = enabled,
         shape = AppShapes.buttonMedium,
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
-            disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
-            disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+            containerColor = AccentPrimary,
+            contentColor = Color.White,
+            disabledContainerColor = Purple20,
+            disabledContentColor = Purple60
         ),
         elevation = ButtonDefaults.buttonElevation(
             defaultElevation = 4.dp,
@@ -374,7 +383,7 @@ private fun StyledButton(
         if (isLoading) {
             CircularProgressIndicator(
                 modifier = Modifier.size(AppDimensions.iconSizeMedium),
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = Color.White,
                 strokeWidth = 2.dp
             )
         } else {
@@ -400,14 +409,14 @@ private fun RoleOption(
             selected = selected,
             onClick = onClick,
             colors = RadioButtonDefaults.colors(
-                selectedColor = MaterialTheme.colorScheme.primary,
-                unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
+                selectedColor = AccentPrimary,
+                unselectedColor = Purple40
             )
         )
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = TextPrimary,
             modifier = Modifier.padding(start = AppDimensions.paddingSmall)
         )
     }
@@ -422,9 +431,7 @@ private fun StatusCard(
         modifier = Modifier.fillMaxWidth(),
         shape = AppShapes.cardSmall,
         colors = CardDefaults.cardColors(
-            containerColor = if (isSuccess)
-                MaterialTheme.extendedColors.successContainer
-            else MaterialTheme.extendedColors.errorContainer
+            containerColor = if (isSuccess) Purple20 else Purple10
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -435,9 +442,7 @@ private fun StatusCard(
             Icon(
                 imageVector = if (isSuccess) Icons.Default.Person else Icons.Default.Lock,
                 contentDescription = null,
-                tint = if (isSuccess)
-                    MaterialTheme.extendedColors.onSuccessContainer
-                else MaterialTheme.extendedColors.onErrorContainer,
+                tint = if (isSuccess) AccentPrimary else Purple70,
                 modifier = Modifier.size(AppDimensions.iconSizeMedium)
             )
 
@@ -446,9 +451,7 @@ private fun StatusCard(
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (isSuccess)
-                    MaterialTheme.extendedColors.onSuccessContainer
-                else MaterialTheme.extendedColors.onErrorContainer,
+                color = if (isSuccess) AccentPrimary else Purple70,
                 modifier = Modifier.weight(1f)
             )
         }
