@@ -44,6 +44,7 @@ class MedicineViewModel : ViewModel() {
                     _errorMessage.value = "Failed to load medicines"
                 }
             } catch (e: Exception) {
+                Log.e("MedicineViewModel", "Error loading medicines", e)
                 _errorMessage.value = "Network error: ${e.message}"
             } finally {
                 _isLoading.value = false
@@ -59,11 +60,13 @@ class MedicineViewModel : ViewModel() {
                 if (response.isSuccessful) {
                     _medicineStats.value = response.body()
                 } else {
-                    _errorMessage.value = "Failed to load stats: ${response.code()} - ${response.errorBody()?.string()}"
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("MedicineViewModel", "Failed to load stats: ${response.code()} - $errorBody")
+                    _errorMessage.value = "Failed to load stats: ${response.code()}"
                 }
             } catch (e: Exception) {
-                _errorMessage.value = "Network error: ${e.message}"
                 Log.e("MedicineViewModel", "Error loading stats", e)
+                _errorMessage.value = "Network error: ${e.message}"
             } finally {
                 _isLoading.value = false
             }
@@ -81,6 +84,7 @@ class MedicineViewModel : ViewModel() {
                     _errorMessage.value = "Failed to load medicine"
                 }
             } catch (e: Exception) {
+                Log.e("MedicineViewModel", "Error loading medicine by ID", e)
                 _errorMessage.value = "Network error: ${e.message}"
             } finally {
                 _isLoading.value = false
@@ -99,6 +103,7 @@ class MedicineViewModel : ViewModel() {
                     _errorMessage.value = "Failed to create medicine"
                 }
             } catch (e: Exception) {
+                Log.e("MedicineViewModel", "Error creating medicine", e)
                 _errorMessage.value = "Network error: ${e.message}"
             } finally {
                 _isLoading.value = false
@@ -117,6 +122,7 @@ class MedicineViewModel : ViewModel() {
                     _errorMessage.value = "Failed to update medicine"
                 }
             } catch (e: Exception) {
+                Log.e("MedicineViewModel", "Error updating medicine", e)
                 _errorMessage.value = "Network error: ${e.message}"
             } finally {
                 _isLoading.value = false
@@ -135,6 +141,7 @@ class MedicineViewModel : ViewModel() {
                     _errorMessage.value = "Failed to delete medicine"
                 }
             } catch (e: Exception) {
+                Log.e("MedicineViewModel", "Error deleting medicine", e)
                 _errorMessage.value = "Network error: ${e.message}"
             } finally {
                 _isLoading.value = false
@@ -155,6 +162,7 @@ class MedicineViewModel : ViewModel() {
                     _errorMessage.value = "Failed to update quantity"
                 }
             } catch (e: Exception) {
+                Log.e("MedicineViewModel", "Error updating quantity", e)
                 _errorMessage.value = "Network error: ${e.message}"
             } finally {
                 _isLoading.value = false
@@ -173,42 +181,66 @@ class MedicineViewModel : ViewModel() {
                     _errorMessage.value = "Failed to simulate sale"
                 }
             } catch (e: Exception) {
+                Log.e("MedicineViewModel", "Error simulating sale", e)
                 _errorMessage.value = "Network error: ${e.message}"
             } finally {
                 _isLoading.value = false
             }
         }
     }
+
     fun getAllRooms() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
                 val response = RetrofitInstance.medicineApi.getAllRooms()
                 if (response.isSuccessful) {
-                    _rooms.value = response.body()?.rooms ?: emptyList() // Зверніть увагу на .rooms
+                    val roomsResponse = response.body()
+                    if (roomsResponse != null) {
+                        _rooms.value = roomsResponse.rooms
+                        Log.d("MedicineViewModel", "Loaded ${roomsResponse.rooms.size} rooms")
+                    } else {
+                        Log.w("MedicineViewModel", "Rooms response is null")
+                        _rooms.value = emptyList()
+                        _errorMessage.value = "Empty rooms response"
+                    }
                 } else {
-                    _errorMessage.value = "Failed to load rooms: ${response.errorBody()?.string()}"
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("MedicineViewModel", "Failed to load rooms: ${response.code()} - $errorBody")
+                    _errorMessage.value = "Failed to load rooms: ${response.code()}"
                 }
             } catch (e: Exception) {
+                Log.e("MedicineViewModel", "Error loading rooms", e)
                 _errorMessage.value = "Network error: ${e.message}"
             } finally {
                 _isLoading.value = false
             }
         }
     }
+
     fun getMedicinesWithStorageIssues() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
                 val response = RetrofitInstance.medicineApi.getMedicinesWithStorageIssues()
                 if (response.isSuccessful) {
-                    _storageIssues.value = response.body()?.medicines ?: emptyList()
+                    val storageResponse = response.body()
+                    if (storageResponse != null) {
+                        _storageIssues.value = storageResponse.medicines
+                        Log.d("MedicineViewModel", "Loaded ${storageResponse.medicines.size} storage issues")
+                    } else {
+                        Log.w("MedicineViewModel", "Storage issues response is null")
+                        _storageIssues.value = emptyList()
+                        _errorMessage.value = "Empty storage issues response"
+                    }
                 } else {
-                    _errorMessage.value = "Failed to load storage issues: ${response.errorBody()?.string()}"
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("MedicineViewModel", "Failed to load storage issues: ${response.code()} - $errorBody")
+                    _errorMessage.value = "Failed to load storage issues: ${response.code()}"
                 }
             } catch (e: Exception) {
-                _errorMessage.value = "Network error: ${e.message}"
                 Log.e("MedicineViewModel", "Error loading storage issues", e)
+                _errorMessage.value = "Network error: ${e.message}"
             } finally {
                 _isLoading.value = false
             }
@@ -219,4 +251,38 @@ class MedicineViewModel : ViewModel() {
         _errorMessage.value = null
     }
 
+    // Метод для безпечного завантаження всіх даних
+    fun loadAllData() {
+        viewModelScope.launch {
+            try {
+                // Завантажуємо основні дані
+                getAllMedicines()
+
+                // Завантажуємо статистику, але не блокуємо інші дані при помилці
+                try {
+                    getMedicineStats()
+                } catch (e: Exception) {
+                    Log.w("MedicineViewModel", "Failed to load stats, continuing with other data", e)
+                }
+
+                // Завантажуємо проблеми зберігання, але не блокуємо інші дані при помилці
+                try {
+                    getMedicinesWithStorageIssues()
+                } catch (e: Exception) {
+                    Log.w("MedicineViewModel", "Failed to load storage issues, continuing with other data", e)
+                }
+
+                // Завантажуємо кімнати
+                try {
+                    getAllRooms()
+                } catch (e: Exception) {
+                    Log.w("MedicineViewModel", "Failed to load rooms, continuing with other data", e)
+                }
+
+            } catch (e: Exception) {
+                Log.e("MedicineViewModel", "Error in loadAllData", e)
+                _errorMessage.value = "Failed to load data: ${e.message}"
+            }
+        }
+    }
 }
