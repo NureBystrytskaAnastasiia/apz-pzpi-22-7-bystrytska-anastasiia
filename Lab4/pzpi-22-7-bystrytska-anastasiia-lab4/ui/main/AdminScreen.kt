@@ -7,12 +7,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.mobile.ui.theme.AppDimensions
-import com.example.mobile.ui.theme.AppTypography
-import androidx.compose.foundation.background
+import com.example.mobile.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,21 +31,21 @@ fun AdminScreen(
                 title = {
                     Text(
                         text = "Адмін панель",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 actions = {
                     IconButton(onClick = onLogout) {
                         Icon(
                             imageVector = Icons.Filled.Logout,
                             contentDescription = "Вийти",
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 }
@@ -55,182 +53,97 @@ fun AdminScreen(
         },
         bottomBar = {
             NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                containerColor = MaterialTheme.colorScheme.surface,
                 modifier = Modifier.height(AppDimensions.bottomNavHeight)
             ) {
                 NavigationBarItem(
                     icon = {
                         Icon(
                             imageVector = Icons.Filled.Analytics,
-                            contentDescription = "Статистика",
-                            tint = if (currentScreen == AdminScreenType.STATS) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            }
+                            contentDescription = "Статистика"
                         )
                     },
                     label = {
                         Text(
                             text = "Статистика",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = if (currentScreen == AdminScreenType.STATS) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            }
+                            style = MaterialTheme.typography.labelMedium
                         )
                     },
                     selected = currentScreen == AdminScreenType.STATS,
-                    onClick = { currentScreen = AdminScreenType.STATS },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = MaterialTheme.colorScheme.primary,
-                        selectedTextColor = MaterialTheme.colorScheme.primary,
-                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        indicatorColor = MaterialTheme.colorScheme.surface
-                    )
+                    onClick = { currentScreen = AdminScreenType.STATS }
                 )
                 NavigationBarItem(
                     icon = {
                         Icon(
                             imageVector = Icons.Filled.Medication,
-                            contentDescription = "Ліки",
-                            tint = if (currentScreen == AdminScreenType.MEDICINES) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            }
+                            contentDescription = "Ліки"
                         )
                     },
                     label = {
                         Text(
                             text = "Ліки",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = if (currentScreen == AdminScreenType.MEDICINES) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            }
+                            style = MaterialTheme.typography.labelMedium
                         )
                     },
                     selected = currentScreen == AdminScreenType.MEDICINES,
-                    onClick = { currentScreen = AdminScreenType.MEDICINES },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = MaterialTheme.colorScheme.primary,
-                        selectedTextColor = MaterialTheme.colorScheme.primary,
-                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        indicatorColor = MaterialTheme.colorScheme.surface
-                    )
+                    onClick = { currentScreen = AdminScreenType.MEDICINES }
                 )
                 NavigationBarItem(
                     icon = {
                         Icon(
                             imageVector = Icons.Filled.ShoppingCart,
-                            contentDescription = "Замовлення",
-                            tint = if (currentScreen == AdminScreenType.ORDERS) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            }
+                            contentDescription = "Замовлення"
                         )
                     },
                     label = {
                         Text(
                             text = "Замовлення",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = if (currentScreen == AdminScreenType.ORDERS) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            }
+                            style = MaterialTheme.typography.labelMedium
                         )
                     },
                     selected = currentScreen == AdminScreenType.ORDERS,
                     onClick = {
                         currentScreen = AdminScreenType.ORDERS
                         onOrdersClick()
-                    },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = MaterialTheme.colorScheme.primary,
-                        selectedTextColor = MaterialTheme.colorScheme.primary,
-                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        indicatorColor = MaterialTheme.colorScheme.surface
-                    )
+                    }
                 )
                 NavigationBarItem(
                     icon = {
                         Icon(
                             imageVector = Icons.Filled.Home,
-                            contentDescription = "Кімнати",
-                            tint = if (currentScreen == AdminScreenType.ROOMS) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            }
+                            contentDescription = "Кімнати"
                         )
                     },
                     label = {
                         Text(
                             text = "Кімнати",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = if (currentScreen == AdminScreenType.ROOMS) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            }
+                            style = MaterialTheme.typography.labelMedium
                         )
                     },
                     selected = currentScreen == AdminScreenType.ROOMS,
                     onClick = {
                         currentScreen = AdminScreenType.ROOMS
                         onRoomsClick()
-                    },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = MaterialTheme.colorScheme.primary,
-                        selectedTextColor = MaterialTheme.colorScheme.primary,
-                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        indicatorColor = MaterialTheme.colorScheme.surface
-                    )
+                    }
                 )
                 NavigationBarItem(
                     icon = {
                         Icon(
                             imageVector = Icons.Filled.People,
-                            contentDescription = "Користувачі",
-                            tint = if (currentScreen == AdminScreenType.USERS) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            }
+                            contentDescription = "Користувачі"
                         )
                     },
                     label = {
                         Text(
                             text = "Користувачі",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = if (currentScreen == AdminScreenType.USERS) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            }
+                            style = MaterialTheme.typography.labelMedium
                         )
                     },
                     selected = currentScreen == AdminScreenType.USERS,
                     onClick = {
                         currentScreen = AdminScreenType.USERS
                         onUsersClick()
-                    },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = MaterialTheme.colorScheme.primary,
-                        selectedTextColor = MaterialTheme.colorScheme.primary,
-                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        indicatorColor = MaterialTheme.colorScheme.surface
-                    )
+                    }
                 )
             }
         }
@@ -239,7 +152,6 @@ fun AdminScreen(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
         ) {
             when (currentScreen) {
                 AdminScreenType.STATS -> AdminStatsView(viewModel)
