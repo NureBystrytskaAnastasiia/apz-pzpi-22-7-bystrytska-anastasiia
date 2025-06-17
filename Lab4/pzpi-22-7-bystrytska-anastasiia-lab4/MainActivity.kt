@@ -25,13 +25,14 @@ import com.example.mobile.ui.room.RoomListScreen
 import com.example.mobile.ui.user.UserListScreen
 import com.example.mobile.ui.theme.MobileTheme
 import kotlinx.coroutines.launch
+import android.util.Log
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MobileTheme {
+            MobileTheme(dynamicColor = false){
                 val tokenStorage = TokenStorage(this)
 
                 val loginViewModel: LoginViewModel = viewModel(
@@ -47,12 +48,27 @@ class MainActivity : ComponentActivity() {
                 LaunchedEffect(Unit) {
                     launch {
                         tokenStorage.tokenFlow.collect { token ->
+                            val wasLoggedIn = isLoggedIn
                             isLoggedIn = !token.isNullOrBlank()
-                            if (!isLoggedIn) userRole = null
+
+                            Log.d("MainActivity", "Token changed: isLoggedIn = $isLoggedIn")
+
+                            if (!isLoggedIn) {
+                                userRole = null
+                                Log.d("MainActivity", "User logged out, clearing role")
+                            }
+
+                            // Якщо користувач вийшов з системи, переходимо на екран авторизації
+                            if (wasLoggedIn && !isLoggedIn) {
+                                navController.navigate("auth") {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            }
                         }
                     }
                     launch {
                         tokenStorage.roleFlow.collect { role ->
+                            Log.d("MainActivity", "Role changed: $role")
                             userRole = role
                         }
                     }
@@ -66,6 +82,7 @@ class MainActivity : ComponentActivity() {
                         AuthScreen(
                             viewModel = loginViewModel,
                             onLoginSuccess = { role ->
+                                Log.d("MainActivity", "Login success with role: $role")
                                 userRole = role
                                 navController.navigate("main") {
                                     popUpTo("auth") { inclusive = true }
@@ -75,32 +92,50 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable("main") {
-                        when (userRole) {
-                            "admin" -> AdminScreen(
-                                onLogout = {
-                                    loginViewModel.logout()
-                                    navController.navigate("auth") {
-                                        popUpTo("main") { inclusive = true }
-                                    }
-                                },
-                                viewModel = medicineViewModel,
-                                onOrdersClick = { navController.navigate("orders") },
-                                onRoomsClick = { navController.navigate("rooms") },
-                                onUsersClick = { navController.navigate("users") }
-                            )
-                            "pharmacist" -> PharmacistScreen(
-                                onLogout = {
-                                    loginViewModel.logout()
-                                    navController.navigate("auth") {
-                                        popUpTo("main") { inclusive = true }
-                                    }
-                                },
-                                viewModel = medicineViewModel,
-                                onOrdersClick = { navController.navigate("orders") },
-                                onRoomsClick = { navController.navigate("rooms") }
-                            )
-                            else -> {
+                        // Додаємо перевірку на роль та обробку помилок
+                        when {
+                            userRole == null -> {
+                                // Показуємо екран завантаження або повертаємося до авторизації
                                 LaunchedEffect(Unit) {
+                                    Log.w("MainActivity", "User role is null, redirecting to auth")
+                                    navController.navigate("auth") {
+                                        popUpTo("main") { inclusive = true }
+                                    }
+                                }
+                            }
+                            userRole == "admin" -> {
+                                AdminScreen(
+                                    onLogout = {
+                                        Log.d("MainActivity", "Admin logout")
+                                        loginViewModel.logout()
+                                        navController.navigate("auth") {
+                                            popUpTo("main") { inclusive = true }
+                                        }
+                                    },
+                                    viewModel = medicineViewModel,
+                                    onOrdersClick = { navController.navigate("orders") },
+                                    onRoomsClick = { navController.navigate("rooms") },
+                                    onUsersClick = { navController.navigate("users") }
+                                )
+                            }
+                            userRole == "pharmacist" -> {
+                                PharmacistScreen(
+                                    onLogout = {
+                                        Log.d("MainActivity", "Pharmacist logout")
+                                        loginViewModel.logout()
+                                        navController.navigate("auth") {
+                                            popUpTo("main") { inclusive = true }
+                                        }
+                                    },
+                                    viewModel = medicineViewModel,
+                                    onOrdersClick = { navController.navigate("orders") },
+                                    onRoomsClick = { navController.navigate("rooms") }
+                                )
+                            }
+                            else -> {
+                                // Невідома роль
+                                LaunchedEffect(Unit) {
+                                    Log.w("MainActivity", "Unknown user role: $userRole, logging out")
                                     loginViewModel.logout()
                                     navController.navigate("auth") {
                                         popUpTo("main") { inclusive = true }
