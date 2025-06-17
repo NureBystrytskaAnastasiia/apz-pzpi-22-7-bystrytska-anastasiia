@@ -1,1 +1,484 @@
+Міністерство освіти і науки України 
+Харківський національний університет радіоелектроніки
+
+
+
+
+
+Кафедра «Програмної інженерії»
+
+
+
+Дисципліна «Архітектура програмного
+забезпечення» 
+Лабораторна робота №5
+«РОЗГОРТАННЯ ПРОГРАМНОЇ СИСТЕМИ ТА ДЕМОНСТРАЦІЯ ЇЇ РОБОТИ»
+
+
+
+
+
+
+
+
+Виконала:
+ст. гр. ПЗПІ-22-7
+Бистрицька А.І	Прийняв:
+ ст. викл.
+Сокорчук І.П
+
+
+
+
+Харків – 2025
+5 РОЗГОРТАННЯ ПРОГРАМНОЇ СИСТЕМИ ТА ДЕМОНСТРАЦІЯ ЇЇ РОБОТИ
+5.1 Історія змін
+Таблиця 5.1 – Історія змін
+№	Дата	Версія	Опис змін
+1	16.06.2025	0.1	Створено «Історія Змін»
+2	16.06.2025	0.1	Створено «Завдання»
+3	16.06.2025	0.1	Створено «Опис виконаної роботи»
+4	16.06.2025	0.1	Створено «Висновки»
+5	17.06.2025	0.1	Створено «ДОДАТОК А»
+6	16.06.2025	0.1	Створено «ДОДАТОК Б»
+5.2 Завдання
+Мета завдання — впровадити повноцінний стек програмної системи та показати її функціонування у всіх компонентах: серверній частині, веб-інтерфейсі, мобільному застосунку та IoT-підсистемі. Потрібно продемонструвати, що всі складові системи працюють узгоджено, забезпечуючи оперативний збір, збереження та моніторинг медичних біологічних матеріалів.
+5.3 Опис виконаної роботи
+Система базується на сучасному технологічному стеку, який охоплює бекенд, фронтенд, мобільний застосунок, IoT-пристрої та інфраструктуру.
+На серверній стороні використовується Node.js як основне середовище виконання, а Express — як фреймворк для побудови REST API. Дані про користувачів, медикаменти, замовлення та показники з сенсорів зберігаються в MongoDB. Передача даних з IoT-пристроїв у реальному часі здійснюється через протокол MQTT, що забезпечує ефективну комунікацію з мікроконтролерами. Безпека гарантується за допомогою JWT (автентифікація) та bcrypt (хешування паролів). Також підтримується генерація PDF-документів, зокрема накладних, за допомогою бібліотеки html-pdf.
+Фронтенд-частина реалізована з використанням HTML5, CSS3 та JavaScript (ES6+), що забезпечує інтуїтивний і доступний веб-інтерфейс для адміністраторів і фармацевтів.
+Мобільний застосунок створено на Kotlin з використанням Jetpack Compose, що забезпечує сучасний вигляд і високу продуктивність на Android-пристроях. Застосунок підтримує автентифікацію, перегляд ліків, обробку замовлень і навігацію між ролями адміністратора й фармацевта.
+У рамках IoT-підсистеми використовується ESP32 з підключеними сенсорами температури та вологості (DHT22). Дані із сенсорів надсилаються на сервер через MQTT, де аналізуються та, за потреби, запускається сповіщення відповідального персоналу про порушення умов зберігання медикаментів.
+5.4 Висновки 
+У межах проєкту було створено повноцінну систему для автоматизації аптечної мережі, яка об’єднує серверну частину, веб-інтерфейс, мобільний застосунок і IoT-пристрої. Система дозволяє керувати медикаментами, замовленнями, користувачами та контролювати умови зберігання препаратів у режимі реального часу.
+ 
+ДОДАТОК А
+Хронологічний опис та посилання:
+Відео доповіді на Youtube: https://youtu.be/Mh-J2kquDBE
+Хронологічний опис доповіді:
+00:00 Вступна частина 
+00:25 Клонування репозиторію 
+01:18 Розгортання серверної частини 
+02:32 Розгортання веб-частини 
+03:18 Розгортання IoT-частини 
+04:01 Розгортання мобільної частини
+ 
+ДОДАТОК Б 
+Специфікація АРІ
+API Документація для проєкту "Система автоматизації аптечних мереж"
+API забезпечує функціональність для управління процесами в межах аптечної мережі. Він дозволяє працювати з ліками, замовленнями, користувачами, а також контролювати умови зберігання медикаментів у реальному часі завдяки інтеграції з IoT-пристроями. Система підтримує повну взаємодію між веб-інтерфейсом, мобільним застосунком і серверною частиною, забезпечуючи ефективне адміністрування та моніторинг усіх ключових операцій.
+Встановлення та налаштування:
+Передумови:
+Для взаємодії з проєктом необхідно встановити:
+Серверна частина (Backend):
+•	Node.js (версія 18 та вище) — середовище виконання JavaScript
+•	npm — менеджер пакетів
+•	Express — фреймворк для створення REST API
+•	MongoDB (версія 6.0 та вище) — база даних для зберігання інформації про ліки, користувачів, замовлення
+•	Mongoose — ODM для MongoDB
+•	JWT — для автентифікації користувачів
+•	bcrypt — для хешування паролів
+•	nodemailer — для надсилання повідомлень через Gmail SMTP
+•	MQTT broker (наприклад, Mosquitto) — для взаємодії з IoT-пристроями в режимі реального часу
+Веб-клієнт (Frontend):
+•	[HTML5, CSS3, JavaScript (ES6+)] — основні вебтехнології
+•	Vite — інструмент для збірки
+•	Google Chrome або Firefox — рекомендовані браузери
+Мобільний застосунок:
+•	Android Studio (версія Giraffe або новіша)
+•	Kotlin (версія 1.8+)
+•	Jetpack Compose — для створення UI
+•	Android SDK (API рівень 31 та вище)
+•	Емулятор або реальний Android-пристрій
+	
+Крок 1:  Клонувати проєкт з репозиторію на комп’ютер
+git clone https://github.com/NureBystrytskaAnastasiia/apz-pzpi-22-7-bystrytska-anastasiia.git
+Крок 2:  Відкрити папки «client» та «server» через Visual studio code
+Крок 3: Для «server» відкрити термінал та ввести команду «npm run dev» сервер запуститься  в терміналі  з таким повідомленням «Server rinning on port 5000»
+Крок 4: Для «client» вибрати файл index.html  натиснути праву кнопку миші обрати команду «Open with Live Server» та відкриється у браузері веб частина системи
+Крок 5: Відкрити «Android Studio»  натиснути файл  - відкрити та обираємо папку проєкту  мобільної частини та запускаємо
+Крок 6: Для IoT достатньо перейти за посиланням https://wokwi.com/projects/418468694905812993  на платформу Wokwi, де розміщено готовий код із налаштованими датчиками — натисніть кнопку "Пуск", і симуляція почне працювати.
+Управління аутентифікацією
+Реєстрація користувача
+Endpoint: POST /auth/register
+Опис: Створення нового користувача в системі.
+Тіло запиту:
+{
+  "email": "string",
+  "password": "string",
+  "name": "string",
+  "role": "admin | pharmacist"
+}
+Відповіді:
+201 Created - Користувач успішно зареєстрований
+400 Bad Request - Email вже використовується
+500 Internal Server Error - Помилка сервера
+Вхід користувача
+Endpoint: POST /auth/login
+Опис: Аутентифікація користувача та отримання JWT токену.
+Тіло запиту:
+{
+  "email": "string",
+  "password": "string"
+}
+Відповідь при успіху (200):
+{
+  "token": "string",
+  "user": {
+    "email": "string",
+    "name": "string",
+    "role": "string"
+  }
+}
+Відновлення паролю
+Endpoint: POST /auth/forgot-password
+Опис: Відправка нового паролю на електронну пошту користувача.
+Тіло запиту:
+{
+  "email": "string"
+}
+Вихід користувача
+Endpoint: POST /auth/logout
+Опис: Завершення сесії користувача.
+Управління медикаментами
+Створення медикаменту
+Endpoint: POST /medicines
+Опис: Додавання нового медикаменту до системи.
+Тіло запиту:
+{
+  "name": "string",
+  "quantity": "number",
+  "expirationDate": "date",
+  "supplier": "string",
+  "price": "number",
+  "storageRoomId": "ObjectId",
+  "temperatureRange": {
+    "min": "number",
+    "max": "number"
+  },
+  "humidityRange": {
+    "min": "number",
+    "max": "number"
+  },
+  "storageInstructions": "string"
+}
+Відповідь при успіху (201):
+{
+  "_id": "ObjectId",
+  "name": "string",
+  "quantity": "number",
+  "expirationDate": "date",
+  "supplier": "string",
+  "price": "number",
+  "storageRoomId": "ObjectId",
+  "temperatureRange": {
+    "min": "number",
+    "max": "number"
+  },
+  "humidityRange": {
+    "min": "number",
+    "max": "number"
+  },
+  "storageInstructions": "string",
+  "isExpiringSoon": "boolean",
+  "createdAt": "date",
+  "updatedAt": "date"
+}
+Отримання всіх медикаментів
+Endpoint: GET /medicines
+Опис: Отримання списку всіх медикаментів з додатковою інформацією про умови зберігання.
+Відповідь при успіху (200):
+ [
+  {
+    "_id": "ObjectId",
+    "name": "string",
+    "quantity": "number",
+    "expirationDate": "date",
+    "supplier": "string",
+    "price": "number",
+    "storageRoomId": {
+      "_id": "ObjectId",
+      "name": "string",
+      "temperature": "number",
+      "humidity": "number"
+    },
+    "temperatureRange": {
+      "min": "number",
+      "max": "number"
+    },
+    "humidityRange": {
+      "min": "number",
+      "max": "number"
+    },
+    "storageInstructions": "string",
+    "isExpiringSoon": "boolean",
+    "storageConditions": {
+      "isTempValid": "boolean",
+      "isHumidityValid": "boolean"
+    },
+    "storageStatus": "string"
+  }
+]
+Отримання медикаменту за ID
+Endpoint: GET /medicines/:id
+Опис: Отримання детальної інформації про конкретний медикамент.
+Оновлення медикаменту
+Endpoint: PUT /medicines/:id
+Опис: Повне оновлення інформації про медикамент.
+Видалення медикаменту
+Endpoint: DELETE /medicines/:id
+Опис: Видалення медикаменту з системи.
+Часткове оновлення кількості
+Endpoint: PATCH /medicines/:id
+Опис: Оновлення кількості медикаменту.
+Тіло запиту:
+{
+  "quantity": "number"
+}
+Симуляція продажу
+Endpoint: POST /medicines/simulate-sale
+Опис: Симуляція випадкового продажу медикаменту.
+Отримання статистики
+Endpoint: GET /medicines/stats
+Опис: Отримання статистичних даних про медикаменти та продажі.
+Відповідь при успіху (200):
+{
+  "totalMedicines": "number",
+  "lowStock": "number",
+  "criticalStock": "number",
+  "expiringSoon": "number",
+  "todaySales": "number",
+  "todayRevenue": "number",
+  "salesData": [
+    {
+      "date": "string",
+      "sales": "number",
+      "revenue": "number"
+    }
+  ]
+}
+Управління замовленнями
+Створення замовлення
+Endpoint: POST /orders
+Опис: Створення нового замовлення на поставку медикаментів.
+Тіло запиту:
+{
+  "items": [
+    {
+      "medicineId": "ObjectId",
+      "quantity": "number"
+    }
+  ]
+}
+Відповідь при успіху (201):
+{
+  "_id": "ObjectId",
+  "items": [
+    {
+      "medicineId": "ObjectId",
+      "medicineName": "string",
+      "supplier": "string",
+      "quantity": "number",
+      "unitPrice": "number",
+      "totalPrice": "number"
+    }
+  ],
+  "status": "created",
+  "totalAmount": "number",
+  "createdAt": "date"
+}
+Отримання всіх замовлень
+Endpoint: GET /orders
+Опис: Отримання списку всіх замовлень, відсортованих за датою створення.
+Отримання замовлення за ID
+Endpoint: GET /orders/:id
+Опис: Отримання детальної інформації про конкретне замовлення.
+Завершення замовлення
+Endpoint: POST /orders/:id/complete
+Опис: Завершення замовлення та оновлення кількості медикаментів на складі.
+Генерація накладної
+Endpoint: POST /orders/:id/invoice
+Опис: Генерація PDF накладної для замовлення.
+Відповідь при успіху (200):
+{
+  "pdf": "base64_string",
+  "invoiceNumber": "string"
+}
+Управління кімнатами зберігання
+Створення кімнати
+Endpoint: POST /rooms
+Опис: Створення нової кімнати зберігання з автоматичною ініціалізацією сенсорних даних.
+Тіло запиту:
+{
+  "name": "string",
+  "description": "string"
+}
+Відповідь при успіху (201):
+{
+  "_id": "ObjectId",
+  "name": "string",
+  "description": "string",
+  "temperature": "number",
+  "humidity": "number",
+  "isColdRoom": "boolean",
+  "updatedAt": "date",
+  "message": "string"
+}
+Отримання всіх кімнат
+Endpoint: GET /rooms
+Опис: Отримання списку всіх кімнат зберігання.
+Відповідь при успіху (200):
+{
+  "count": "number",
+  "rooms": [
+    {
+      "_id": "ObjectId",
+      "name": "string",
+      "description": "string",
+      "temperature": "number",
+      "humidity": "number",
+      "isColdRoom": "boolean",
+      "updatedAt": "date"
+    }
+  ]
+}
+Отримання кімнати за ID
+Endpoint: GET /rooms/:id
+Опис: Отримання детальної інформації про конкретну кімнату.
+Оновлення кімнати
+Endpoint: PUT /rooms/:id
+Опис: Оновлення інформації про кімнату зберігання.
+Видалення кімнати
+Endpoint: DELETE /rooms/:id
+Опис: Видалення кімнати та всіх пов'язаних сенсорних даних.
+
+Управління сенсорними даними
+Створення сенсорних даних
+Endpoint: POST /sensor-data
+Опис: Додавання нових показників температури та вологості для кімнати.
+Тіло запиту:
+{
+  "roomId": "ObjectId",
+  "temperature": "number",
+  "humidity": "number"
+}
+Отримання сенсорних даних за кімнатою
+Endpoint: GET /sensor-data/:roomId
+Опис: Отримання останніх 100 записів сенсорних даних для конкретної кімнати.
+Отримання архівних даних
+Endpoint: GET /sensor-data/archive/all
+Опис: Отримання агрегованих сенсорних даних за останні 7 днів для всіх кімнат.
+Відповідь при успіху (200):
+json
+[
+  {
+    "_id": "ObjectId",
+    "roomName": "string",
+    "days": [
+      {
+        "date": {
+          "day": "number",
+          "month": "number",
+          "year": "number"
+        },
+        "avgTemp": "number",
+        "avgHumidity": "number",
+        "minTemp": "number",
+        "maxTemp": "number",
+        "count": "number"
+      }
+    ]
+  }
+]
+Управління користувачами
+Отримання всіх користувачів
+Endpoint: GET /users
+Опис: Отримання списку всіх користувачів системи (без паролів).
+Відповідь при успіху (200):
+ [
+  {
+    "_id": "ObjectId",
+    "email": "string",
+    "name": "string",
+    "role": "admin | pharmacist"
+  }
+]
+Видалення користувача
+Endpoint: DELETE /users/:id
+Опис: Видалення користувача з системи.
+
+Коди відповідей HTTP
+Успішні відповіді
+•	200 OK - Запит виконано успішно
+•	201 Created - Ресурс створено успішно
+Помилки клієнта
+•	400 Bad Request - Некоректні дані запиту
+•	401 Unauthorized - Відсутня або недійсна аутентифікація
+•	403 Forbidden - Недостатньо прав доступу
+•	404 Not Found - Ресурс не знайдено
+Помилки сервера
+•	500 Internal Server Error - Внутрішня помилка сервера
+Схеми даних
+Модель Medicine
+{
+  name: String (required),
+  quantity: Number (required),
+  expirationDate: Date (required),
+  supplier: String (required),
+  price: Number (required),
+  storageRoomId: ObjectId (required, ref: 'Room'),
+  temperatureRange: {
+    min: Number (required),
+    max: Number (required)
+  },
+  humidityRange: {
+    min: Number (required),
+    max: Number (required)
+  },
+  storageInstructions: String,
+  timestamps: true
+}
+Модель Order
+{
+  items: [OrderItem],
+  status: String (enum: ['created', 'delivered', 'completed']),
+  createdAt: Date,
+  deliveredAt: Date,
+  completedAt: Date,
+  invoiceNumber: String,
+  invoiceData: Object,
+  totalAmount: Number,
+  timestamps: true
+}
+Модель Room
+{
+  name: String (required),
+  description: String,
+  temperature: Number,
+  humidity: Number,
+  updatedAt: Date
+}
+Модель User
+{
+  email: String (required, unique),
+  password: String (required),
+  name: String (required),
+  role: String (enum: ['admin', 'pharmacist'])
+}
+ Модель Sale
+{
+  medicine: ObjectId (required, ref: 'Medicine'),
+  quantity: Number (required, min: 1),
+  price: Number (required),
+  date: Date
+}
+ SensorData
+{
+  roomId: ObjectId (required, ref: 'Room'),
+  temperature: Number (required),
+  humidity: Number (required),
+  timestamp: Date (expires: '7d')
+}
+
+
 
